@@ -1,3 +1,5 @@
+[![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)
+
 # Call Of Duty API Wrapper
 
 Call of Duty Api is a wrapper for the "private" API that Activision use on the callofduty.com website.
