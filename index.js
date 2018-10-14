@@ -7,6 +7,7 @@ const userAgent = "Node-Cod";
 const infiniteWarfare = "iw";
 const worldWar2 = "wwii";
 const blackops3 = "bo3";
+const blackops4 = "bo4";
 
 exports.IwWeekly = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
@@ -19,7 +20,7 @@ exports.IwWeekly = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if(e) reject(e);
+            if (e) reject(e);
             resolve(JSON.parse(b).data);
         });
     });
@@ -36,7 +37,7 @@ exports.IWStats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if(e) reject(e);
+            if (e) reject(e);
             resolve(JSON.parse(b).data);
         });
     });
@@ -53,7 +54,7 @@ exports.WWIIWeekly = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if(e) reject(e);
+            if (e) reject(e);
             resolve(JSON.parse(b).data);
         });
     });
@@ -70,7 +71,7 @@ exports.WWIIStats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if(e) reject(e);
+            if (e) reject(e);
             resolve(JSON.parse(b).data);
         });
     });
@@ -87,7 +88,25 @@ exports.BO3Stats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if(e) reject(e);
+            if (e) reject(e);
+            resolve(JSON.parse(b).data);
+        });
+    });
+};
+
+exports.BO4Stats = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("PC Not Supported Yet.");
+        var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops4, platform, gamertag);
+        var options = {
+            url: urlInput,
+            headers: {
+                "content-type": "application/json",
+                "User-Agent": userAgent
+            }
+        };
+        request(options, (e, r, b) => {
+            if (e) reject(e);
             resolve(JSON.parse(b).data);
         });
     });
