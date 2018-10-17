@@ -96,7 +96,7 @@ exports.BO3Stats = function (gamertag, platform) {
 
 exports.BO4Stats = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("PC Not Supported Yet.");
+        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
