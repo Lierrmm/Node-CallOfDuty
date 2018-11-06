@@ -97,7 +97,65 @@ exports.BO3Stats = function (gamertag, platform) {
 exports.BO4Stats = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
         if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        if (platform === "battle") reject("No Endpoint for Battlenet found.");
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops4, platform, gamertag);
+        var options = {
+            url: urlInput,
+            headers: {
+                "content-type": "application/json",
+                "User-Agent": userAgent
+            }
+        };
+        request(options, (e, r, b) => {
+            if (e) reject(e);
+            resolve(JSON.parse(b).data);
+        });
+    });
+};
+
+exports.BO4zm = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        if (platform === "battle") reject("No Endpoint for Battlenet found.");
+        var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/zm", blackops4, platform, gamertag);
+        var options = {
+            url: urlInput,
+            headers: {
+                "content-type": "application/json",
+                "User-Agent": userAgent
+            }
+        };
+        request(options, (e, r, b) => {
+            if (e) reject(e);
+            resolve(JSON.parse(b).data);
+        });
+    });
+};
+
+exports.BO4mp = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        if (platform === "battle") reject("No Endpoint for Battlenet found.");
+        var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/mp", blackops4, platform, gamertag);
+        var options = {
+            url: urlInput,
+            headers: {
+                "content-type": "application/json",
+                "User-Agent": userAgent
+            }
+        };
+        request(options, (e, r, b) => {
+            if (e) reject(e);
+            resolve(JSON.parse(b).data);
+        });
+    });
+};
+
+exports.BO4blackout = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        if (platform === "battle") reject("No Endpoint for Battlenet found.");
+        var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/blackout", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
             headers: {
