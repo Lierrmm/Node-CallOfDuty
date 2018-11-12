@@ -245,3 +245,21 @@ exports.BO4combatbo = function (gamertag, platform) {
         });
     });
 }
+
+exports.BO4leaderboard = function (platform, page) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        var urlInput = defaultBaseURL + util.format("leaderboards/v2/title/%s/platform/%s/time/alltime/type/core/mode/career/page/%s", blackops4, platform, page);
+        var options = {
+            url: urlInput,
+            headers: {
+                "content-type": "application/json",
+                "User-Agent": userAgent
+            }
+        };
+        request(options, (e, r, b) => {
+            if (e) reject(e);
+            resolve(JSON.parse(b).data);
+        });
+    });
+}
