@@ -110,7 +110,7 @@ exports.BO4Stats = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops4, platform, gamertag);
         var options = {
@@ -135,7 +135,7 @@ exports.BO4zm = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/zm", blackops4, platform, gamertag);
         var options = {
@@ -160,7 +160,7 @@ exports.BO4mp = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/mp", blackops4, platform, gamertag);
         var options = {
@@ -185,7 +185,7 @@ exports.BO4blackout = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/wz", blackops4, platform, gamertag);
         var options = {
@@ -235,7 +235,7 @@ exports.BO4combatmp = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
@@ -260,7 +260,7 @@ exports.BO4combatzm = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/zombies/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
@@ -285,7 +285,7 @@ exports.BO4combatbo = function (gamertag, platform) {
             reject("Steam Doesn't exist for BO4. Try `battle` instead.");
         }
         if (platform === "battle") {
-            gamertag = gamertag.replace('#', '%23');
+            gamertag = gamertag.replace("#", "%23");
         }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/warzone/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
