@@ -1,5 +1,5 @@
-const request = require('request');
-const util = require('util');
+const request = require("request");
+const util = require("util");
 
 const defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
 const userAgent = "Node-Cod";
@@ -20,7 +20,9 @@ exports.IwWeekly = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -37,7 +39,9 @@ exports.IWStats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -54,7 +58,9 @@ exports.WWIIWeekly = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -71,7 +77,9 @@ exports.WWIIStats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -88,7 +96,9 @@ exports.BO3Stats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -96,8 +106,12 @@ exports.BO3Stats = function (gamertag, platform) {
 
 exports.BO4Stats = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -107,7 +121,9 @@ exports.BO4Stats = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -115,8 +131,12 @@ exports.BO4Stats = function (gamertag, platform) {
 
 exports.BO4zm = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/zm", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -126,7 +146,9 @@ exports.BO4zm = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -134,8 +156,12 @@ exports.BO4zm = function (gamertag, platform) {
 
 exports.BO4mp = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/mp", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -145,7 +171,9 @@ exports.BO4mp = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -153,8 +181,12 @@ exports.BO4mp = function (gamertag, platform) {
 
 exports.BO4blackout = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/wz", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -164,7 +196,9 @@ exports.BO4blackout = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
@@ -172,8 +206,12 @@ exports.BO4blackout = function (gamertag, platform) {
 
 exports.BO4friends = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") reject("Battlenet Does not support Friends :(");
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            reject("Battlenet Does not support Friends :(");
+        }
         var urlInput = defaultBaseURL + util.format("leaderboards/v2/title/%s/platform/%s/time/alltime/type/core/mode/career/gamer/%s/friends", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -183,16 +221,22 @@ exports.BO4friends = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
-}
+};
 
 exports.BO4combatmp = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -202,16 +246,22 @@ exports.BO4combatmp = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
-}
+};
 
 exports.BO4combatzm = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/zombies/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -221,16 +271,22 @@ exports.BO4combatzm = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
-}
+};
 
 exports.BO4combatbo = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-        if (platform === "battle") gamertag = gamertag.replace('#', '%23');
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
+        if (platform === "battle") {
+            gamertag = gamertag.replace('#', '%23');
+        }
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/warzone/start/0/end/0/details", blackops4, platform, gamertag);
         var options = {
             url: urlInput,
@@ -240,15 +296,19 @@ exports.BO4combatbo = function (gamertag, platform) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
-}
+};
 
 exports.BO4leaderboard = function (platform, page) {
     return new Promise((resolve, reject) => {
-        if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for BO4. Try `battle` instead.");
+        }
         var urlInput = defaultBaseURL + util.format("leaderboards/v2/title/%s/platform/%s/time/alltime/type/core/mode/career/page/%s", blackops4, platform, page);
         var options = {
             url: urlInput,
@@ -258,8 +318,10 @@ exports.BO4leaderboard = function (platform, page) {
             }
         };
         request(options, (e, r, b) => {
-            if (e) reject(e);
+            if (e) {
+                reject(e);
+            }
             resolve(JSON.parse(b).data);
         });
     });
-}
+};
