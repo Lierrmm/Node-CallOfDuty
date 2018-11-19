@@ -1,21 +1,21 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/408dae7e59104196a5b7c0df62ff21bc)](https://app.codacy.com/app/Lierrmm/Node-CallOfDuty?utm_source=github.com&utm_medium=referral&utm_content=Lierrmm/Node-CallOfDuty&utm_campaign=Badge_Grade_Dashboard)
 [![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)
 
-# Call Of Duty API Wrapper
+## Call Of Duty API Wrapper
 
 Call of Duty Api is a wrapper for the "private" API that Activision use on the callofduty.com website.
 
-# Initialize Module
+## Initialize Module
 ```javascript
 const API = require('call-of-duty-api');
 ```
 
-# List of Platforms
-- psn
-- steam
-- xbl
+## List of Platforms
+-   psn
+-   steam
+-   xbl
 
-# Get Stats
+## Get Stats
 ```javascript
     API.IWStats(<gamertag>, <platform>).then((output) => {
       console.log(output);  
@@ -24,7 +24,7 @@ const API = require('call-of-duty-api');
     });
 ```
 
-# Output
+## Output
 ```javascript 
 {
     title: 'iw',
