@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "[![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/ImNotLiam/Node-CallOfDuty#readme",
   "dependencies": {
-    "request": "2.88.0"
+    "axios": "^0.18.0"
   }
 }

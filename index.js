@@ -1,4 +1,4 @@
-const request = require("request");
+const axios = require('axios');
 const util = require("util");
 
 const defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
@@ -189,17 +189,15 @@ function sendRequest(url) {
     return new Promise((resolve, reject) => {
         var urlInput = url;
         var options = {
+            method: 'get',
             url: urlInput,
             headers: {
                 "content-type": "application/json",
                 "User-Agent": userAgent
             }
         };
-        request(options, (e, r, b) => {
-            if (e) {
-                reject(e);
-            }
-            resolve(JSON.parse(b).data);
-        });
+        axios(options).then(body => {
+            resolve(body.data);
+        }).catch(err => reject(err));
     });
 }
