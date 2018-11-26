@@ -1,5 +1,6 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/408dae7e59104196a5b7c0df62ff21bc)](https://app.codacy.com/app/Lierrmm/Node-CallOfDuty?utm_source=github.com&utm_medium=referral&utm_content=Lierrmm/Node-CallOfDuty&utm_campaign=Badge_Grade_Dashboard)
 [![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/408dae7e59104196a5b7c0df62ff21bc)](https://app.codacy.com/app/Lierrmm/Node-CallOfDuty?utm_source=github.com&utm_medium=referral&utm_content=Lierrmm/Node-CallOfDuty&utm_campaign=Badge_Grade_Dashboard)[![install size](https://packagephobia.now.sh/badge?p=call-of-duty-api)](https://packagephobia.now.sh/result?p=call-of-duty-api)
 
 # Call Of Duty API Wrapper
 
