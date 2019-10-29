@@ -7,6 +7,7 @@ const infiniteWarfare = "iw";
 const worldWar2 = "wwii";
 const blackops3 = "bo3";
 const blackops4 = "bo4";
+const modernwarfare = "mw";
 
 exports.IwWeekly = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
@@ -184,7 +185,61 @@ exports.BO4leaderboard = function (platform, page) {
     });
 };
 
+exports.MWleaderboard = function (platform, page) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        sendRequest(defaultBaseURL + util.format("leaderboards/v2/title/%s/platform/%s/time/alltime/type/core/mode/career/page/%s", modernwarfare, platform, page))
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
+
+exports.MWcombatmp = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+        var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0/details", modernwarfare, platform, gamertag);
+        sendRequest(urlInput)
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
+
+exports.MWmp = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+        var urlInput = defaultBaseURL + util.format("stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/type/mp", modernwarfare, platform, gamertag);
+        sendRequest(urlInput)
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
+
+exports.MWstats = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+        var urlInput = defaultBaseURL + util.format("stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/type/mp", modernwarfare, platform, gamertag);
+        sendRequest(urlInput)
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
+
+exports.MWloot = function(gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+        var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", modernwarfare, platform, gamertag);
+        sendRequest(urlInput)
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
+
 function sendRequest(url) {
+    console.log(url);
     return new Promise((resolve, reject) => {
         var urlInput = url;
         var options = {

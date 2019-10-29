@@ -4,6 +4,10 @@ Call of Duty has updated their API so that you need to pass certain cookies. I h
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/408dae7e59104196a5b7c0df62ff21bc)](https://app.codacy.com/app/Lierrmm/Node-CallOfDuty?utm_source=github.com&utm_medium=referral&utm_content=Lierrmm/Node-CallOfDuty&utm_campaign=Badge_Grade_Dashboard)[![install size](https://packagephobia.now.sh/badge?p=call-of-duty-api)](https://packagephobia.now.sh/result?p=call-of-duty-api)
 
+# NEW!
+
+Added support for Modern Warfare
+
 # Call Of Duty API Wrapper
 
 Call of Duty Api is a wrapper for the "private" API that Activision use on the callofduty.com website.
