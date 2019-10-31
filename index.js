@@ -231,12 +231,15 @@ exports.MWloot = function(gamertag, platform) {
     return new Promise((resolve, reject) => {
         if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
         if (platform === "battle") gamertag = gamertag.replace("#", "%23");
-        var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", modernwarfare, platform, gamertag);
+        var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", platform, gamertag);
         sendRequest(urlInput)
             .then(data => resolve(data))
             .catch(e => reject(e));
     });
 };
+
+
+//TODO: https://my.callofduty.com/api/papi-client/stats/cod/v1/title/%s/platform/uno/gamer/%s/profile/friends/type/mp <- Get All Friends Stats
 
 function sendRequest(url) {
     return new Promise((resolve, reject) => {
