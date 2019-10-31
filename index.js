@@ -1,7 +1,7 @@
 const axios = require('axios');
 const util = require("util");
 const defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
-const userAgent = "Node-Cod";
+const userAgent = "Node-Cod/1.0.21";
 
 const infiniteWarfare = "iw";
 const worldWar2 = "wwii";
@@ -239,7 +239,6 @@ exports.MWloot = function(gamertag, platform) {
 };
 
 function sendRequest(url) {
-    console.log(url);
     return new Promise((resolve, reject) => {
         var urlInput = url;
         var options = {
