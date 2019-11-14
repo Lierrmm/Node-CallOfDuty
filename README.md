@@ -21,10 +21,15 @@ const API = require('call-of-duty-api');
 -   psn
 -   steam
 -   xbl
+-   battle
+```javascript
+    //How to use
+    API.platforms.psn
+```
 
 ## Get Stats
 ```javascript
-    API.IWStats(<gamertag>, <platform>).then((output) => {
+    API.MWstats(<gamertag>, API.platforms.<platform>).then((output) => {
       console.log(output);  
     }).catch((err) => {
         console.log(err);
@@ -34,7 +39,7 @@ const API = require('call-of-duty-api');
 ## Output
 ```javascript 
 {
-    title: 'iw',
+    title: 'mw',
     platform: 'platform',
     username: 'gamertag',
     mp:

@@ -9,6 +9,14 @@ const blackops3 = "bo3";
 const blackops4 = "bo4";
 const modernwarfare = "mw";
 
+exports.platforms = {
+    battle: "battle",
+    steam: "steam", 
+    psn: "psn", 
+    xbl: "xbl"
+}
+
+
 exports.IwWeekly = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
         var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/summary/", infiniteWarfare, platform, gamertag);
@@ -238,6 +246,16 @@ exports.MWloot = function(gamertag, platform) {
     });
 };
 
+exports.MWAnalysis = function(gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+        var urlInput = defaultBaseURL + util.format("ce/v2/title/mw/platform/%s/gametype/all/gamer/%s/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en", platform, gamertag);
+        sendRequest(urlInput)
+            .then(data => resolve(data))
+            .catch(e => reject(e));
+    });
+};
 
 //TODO: https://my.callofduty.com/api/papi-client/stats/cod/v1/title/%s/platform/uno/gamer/%s/profile/friends/type/mp <- Get All Friends Stats
 

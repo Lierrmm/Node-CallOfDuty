@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "[![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)",
   "main": "index.js",
   "scripts": {
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ImNotLiam/Node-CallOfDuty.git"
+    "url": "git+https://github.com/Lierrmm/Node-CallOfDuty.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ImNotLiam/Node-CallOfDuty/issues"
+    "url": "https://github.com/Lierrmm/Node-CallOfDuty/issues"
   },
-  "homepage": "https://github.com/ImNotLiam/Node-CallOfDuty#readme",
+  "homepage": "https://github.com/Lierrmm/Node-CallOfDuty#readme",
   "dependencies": {
     "axios": "0.19.0"
   }
