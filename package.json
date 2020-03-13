@@ -1,7 +1,7 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.0.23",
-  "description": "[![NPM](https://nodei.co/npm/call-of-duty-api.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/call-of-duty-api/)",
+  "version": "1.0.24",
+  "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,14 +10,22 @@
     "type": "git",
     "url": "git+https://github.com/Lierrmm/Node-CallOfDuty.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "br",
+    "warzone",
+    "call-of-duty",
+    "call of duty",
+    "modern warfare",
+    "black ops",
+    "iw"
+  ],
+  "author": "Liam Gaskell",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Lierrmm/Node-CallOfDuty/issues"
   },
   "homepage": "https://github.com/Lierrmm/Node-CallOfDuty#readme",
   "dependencies": {
-    "axios": "^0.19.0"
+    "axios": "^0.19.2"
   }
 }
