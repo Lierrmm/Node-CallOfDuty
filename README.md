@@ -8,7 +8,7 @@ Call of Duty Api is a wrapper for the "private" API that Activision use on the c
 
 ## Initialize Module
 ```javascript
-const API = require('call-of-duty-api');
+const API = require('call-of-duty-api')();
 ```
 or
 ```javascript
