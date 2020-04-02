@@ -20,10 +20,19 @@ const API = require('call-of-duty-api')({ platform: "battle" });
 -   steam
 -   xbl
 -   battle
+-   uno (activision ID)
 ```javascript
 //How to use
 API.platforms.psn
 ```
+Please note:
+`uno` is for looking up via activision ID and this is only supported on a couple of endpoints.
+### Supported Endpoints for activision ID
+-   MWcombatmp
+-   MWcombatwz
+-   MWmp
+-   MWwz
+-   MWstats
 
 ## Get Stats
 ```javascript
