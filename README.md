@@ -1,6 +1,6 @@
-# NEW!
+# Discord
 
-Added support for Modern Warfare's Warzone!
+Join the discord: [here](https://discord.gg/bFSpYkK)
 
 # Call Of Duty API Wrapper
 
