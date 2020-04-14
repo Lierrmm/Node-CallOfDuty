@@ -237,7 +237,7 @@ module.exports = function(config = {}) {
             const urlInput = defaultBaseURL + util.format('stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/friends/type/mp', modernwarfare, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
-    }
+    };
 
     module.MWstats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
