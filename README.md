@@ -1,6 +1,6 @@
 # Discord
 
-Join the discord: https://discord.gg/bFSpYkK
+Join the discord: [here](https://discord.gg/bFSpYkK)
 
 # Call Of Duty API Wrapper
 
