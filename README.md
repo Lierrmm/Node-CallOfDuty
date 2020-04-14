@@ -1,3 +1,13 @@
+# MAJOR CHANGES
+
+You will now have to login to the API before making any requests. This means you will need a call of duty account.
+Simply call:
+```javascript
+ const API = require('call-of-duty-api')();
+ API.login("<email>", "<password>");
+```
+Reasons for this is to bypass a rate limitting issue.
+
 # Discord
 
 Join the discord: [here](https://discord.gg/bFSpYkK)
