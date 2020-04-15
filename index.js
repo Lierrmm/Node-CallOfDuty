@@ -38,25 +38,27 @@ module.exports = function(config = {}) {
     };
 
     module.login = function(email, password) {
-        let randomId = uniqid();
-        let md5sum = crypto.createHash('md5');
-        let deviceId = md5sum.update(randomId).digest('hex');
-        postReq("https://profile.callofduty.com/cod/mapp/registerDevice", { 
-            'deviceId': deviceId
-        }).then((response) => {
-            let authHeader = response.data.authHeader;
-            apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
-            apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
-            postReq("https://profile.callofduty.com/cod/mapp/login", { "email": email, "password": password }).then((data) => {
-                if(!data.success) throw Error("Unsuccessful login.");
-                apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
-                loggedIn = true;
-                console.log("Successful Login.");
+        return new Promise((resolve, reject) => {
+            let randomId = uniqid();
+            let md5sum = crypto.createHash('md5');
+            let deviceId = md5sum.update(randomId).digest('hex');
+            postReq("https://profile.callofduty.com/cod/mapp/registerDevice", { 
+                'deviceId': deviceId
+            }).then((response) => {
+                let authHeader = response.data.authHeader;
+                apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
+                apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
+                postReq("https://profile.callofduty.com/cod/mapp/login", { "email": email, "password": password }).then((data) => {
+                    if(!data.success) throw Error("Unsuccessful login.");
+                    apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
+                    loggedIn = true;
+                    resolve("Successful Login.");
+                }).catch((err) => {
+                    reject(err.message);
+                });
             }).catch((err) => {
-                console.error(err.message);
-            });
-        }).catch((err) => {
-            console.error(err.message);
+                reject(err.message);
+            });  
         });
     };
     

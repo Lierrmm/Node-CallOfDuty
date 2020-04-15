@@ -10,7 +10,7 @@ Reasons for this is to bypass a rate limitting issue.
 
 # Discord
 
-Join the discord: [here](https://discord.gg/bFSpYkK)
+Join the discord: [here](https://discord.gg/NuUpvzC)
 
 # Call Of Duty API Wrapper
 
