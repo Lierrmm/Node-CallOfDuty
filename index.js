@@ -262,8 +262,11 @@ module.exports = function(config = {}) {
     sendRequest = (url) => {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
-            apiAxios.get(url).then(body => { 
-                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted")) reject("Rate Limited.");
+            apiAxios.get(url).then(body => {
+                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
+                    if(body.data.data.message.includes("user not found")) reject("user not found.");
+                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
+                    else reject(body.data.data.message);
                 resolve(body.data.data); 
             }).catch(err => reject(err));
         });
