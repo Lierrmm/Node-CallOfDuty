@@ -4,9 +4,17 @@ You will now have to login to the API before making any requests. This means you
 Simply call:
 ```javascript
  const API = require('call-of-duty-api')();
- API.login("<email>", "<password>");
+ API.login("<email>", "<password>").then(<?>).catch(<?>);
 ```
 Reasons for this is to bypass a rate limitting issue.
+
+I have also implemented axios-rate-limit incase you want to implement your own rate limitting.
+All you need to do is pass a ratelimit object when initializing the module.
+
+```javascript
+    const API = require('call-of-duty-api')( { platform: 'battle', ratelimit: { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 } } );
+```
+You can find out more about axios-rate-limit [here](https://www.npmjs.com/package/axios-rate-limit)
 
 # Discord
 

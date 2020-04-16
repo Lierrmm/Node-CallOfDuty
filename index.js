@@ -1,5 +1,6 @@
 const axios = require('axios');
 const uniqid = require('uniqid');
+const rateLimit = require('axios-rate-limit');
 const util = require("util");
 const crypto = require('crypto');
 
@@ -7,7 +8,7 @@ const userAgent = "Node/1.0.27";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
 let loggedIn = false;
 
-const apiAxios = axios.create({
+let apiAxios = axios.create({
     headers: {
       common: {
         "content-type": "application/json",
@@ -16,6 +17,8 @@ const apiAxios = axios.create({
       },
     },
 });
+
+let loginAxios = apiAxios;
 
 const defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
 const infiniteWarfare = "iw";
@@ -28,6 +31,10 @@ const modernwarfare = "mw";
 module.exports = function(config = {}) {
     var module = {};
     if(config.platform == undefined) config.platform = "psn";
+
+    try {
+        if(typeof config.ratelimit === "object") apiAxios = rateLimit(apiAxios, config.ratelimit);
+    } catch(Err) { console.log("Could not parse ratelimit object. ignoring."); }
 
     module.platforms = {
         battle: "battle",
@@ -274,7 +281,7 @@ module.exports = function(config = {}) {
     
     function postReq(url, data, headers = null) {
         return new Promise((resolve, reject) => {
-            apiAxios.post(url, data, headers).then(response => {
+            loginAxios.post(url, data, headers).then(response => {
                 response = response.data;
                 resolve(response);
             }).catch((err) => {
@@ -282,6 +289,8 @@ module.exports = function(config = {}) {
             });
         });
     }
+
+    module.apiAxios = apiAxios;
 
     return module;
 };
