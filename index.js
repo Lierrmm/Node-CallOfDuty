@@ -70,6 +70,10 @@ module.exports = function(config = {}) {
     };
     
 
+    module.cleanClientName = (gamertag) => {
+        return encodeURIComponent(gamertag);
+    };
+
     module.IwWeekly = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/summary/", infiniteWarfare, platform, gamertag);
@@ -108,7 +112,7 @@ module.exports = function(config = {}) {
     module.BO4Stats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/mp", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -117,7 +121,7 @@ module.exports = function(config = {}) {
     module.BO4zm = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = gthis.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/zm", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -126,7 +130,7 @@ module.exports = function(config = {}) {
     module.BO4mp = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/mp", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -135,7 +139,7 @@ module.exports = function(config = {}) {
     module.BO4blackout = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/wz", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -153,7 +157,7 @@ module.exports = function(config = {}) {
     module.BO4combatmp = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0/details", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -162,7 +166,7 @@ module.exports = function(config = {}) {
     module.BO4combatzm = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/zombies/start/0/end/0/details", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -171,7 +175,7 @@ module.exports = function(config = {}) {
     module.BO4combatbo = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/warzone/start/0/end/0/details", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -198,7 +202,7 @@ module.exports = function(config = {}) {
     module.MWcombatmp = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0/details", modernwarfare, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -207,7 +211,7 @@ module.exports = function(config = {}) {
     module.MWcombatwz = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/wz/start/0/end/0/details", modernwarfare, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -216,7 +220,7 @@ module.exports = function(config = {}) {
     module.MWmp = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform == "uno") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/type/mp", modernwarfare, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -242,7 +246,7 @@ module.exports = function(config = {}) {
     module.MWstats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/type/mp", modernwarfare, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -251,7 +255,7 @@ module.exports = function(config = {}) {
     module.MWloot = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -260,7 +264,7 @@ module.exports = function(config = {}) {
     module.MWAnalysis = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle") gamertag = gamertag.replace("#", "%23");
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("ce/v2/title/mw/platform/%s/gametype/all/gamer/%s/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en", platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -279,7 +283,7 @@ module.exports = function(config = {}) {
         });
     };
     
-    function postReq(url, data, headers = null) {
+    postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
                 response = response.data;
