@@ -121,7 +121,7 @@ module.exports = function(config = {}) {
     module.BO4zm = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
-            if (platform === "battle") gamertag = gthis.cleanClientName(gamertag);
+            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/type/zm", blackops4, platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
