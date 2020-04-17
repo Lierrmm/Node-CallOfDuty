@@ -255,7 +255,7 @@ module.exports = function(config = {}) {
     module.MWloot = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
@@ -264,7 +264,7 @@ module.exports = function(config = {}) {
     module.MWAnalysis = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle") gamertag = this.cleanClientName(gamertag);
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
             var urlInput = defaultBaseURL + util.format("ce/v2/title/mw/platform/%s/gametype/all/gamer/%s/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en", platform, gamertag);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
