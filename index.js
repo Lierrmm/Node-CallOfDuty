@@ -270,6 +270,14 @@ module.exports = function(config = {}) {
         });
     };
 
+    module.friendFeed = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("userfeed/v1/friendFeed/platform/%s/gamer/%s/friendFeedEvents/en", platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
     sendRequest = (url) => {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
@@ -292,7 +300,7 @@ module.exports = function(config = {}) {
                 reject(err.message);
             });
         });
-    }
+    };
 
     module.apiAxios = apiAxios;
 
