@@ -6,7 +6,7 @@ const util = require("util");
 const crypto = require('crypto');
 
 const userAgent = "Node/1.0.27";
-let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
+let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;API_CSRF_TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
 let ssoCookie;
 let loggedIn = false;
 let useCORS = 0;
@@ -18,7 +18,9 @@ let apiAxios = axios.create({
         "content-type": "application/json",
         "Cookie": baseCookie,
         "userAgent": userAgent,
-        "x-requested-with": userAgent
+        "x-requested-with": userAgent,
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Connection": "keep-alive"
       },
     },
 });
@@ -27,6 +29,7 @@ let loginAxios = apiAxios;
 
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
 let loginURL = "https://profile.callofduty.com/cod/mapp/";
+let defaultProfileURL = "https://profile.callofduty.com/";
 const defaultCORs = "http://localhost:1337/";
 const infiniteWarfare = "iw";
 const worldWar2 = "wwii";
@@ -41,6 +44,7 @@ module.exports = function(config = {}) {
     if(useCORS === 1) {
         defaultBaseURL = `${defaultCORs}${defaultBaseURL}`;
         loginURL = `${defaultCORs}${loginURL}`;
+        defaultProfileURL = `${defaultCORs}${defaultProfileURL}`;
         cors_proxy.createServer({
             originWhitelist: [],
             requireHeader: ['origin', 'x-requested-with']
@@ -251,6 +255,26 @@ module.exports = function(config = {}) {
         });
     };
 
+    module.MWfullcombatmp = function(gamertag, platform = config.platform) {
+        //https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/lierrmm%232364/matches/mp/start/0/end/0
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/mp/start/0/end/0", modernwarfare, platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.MWfullcombatwz = function(gamertag, platform = config.platform) {
+        //https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/lierrmm%232364/matches/mp/start/0/end/0
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/matches/wz/start/0/end/0", modernwarfare, platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.MWmp = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
@@ -325,7 +349,46 @@ module.exports = function(config = {}) {
 
     module.getEventFeed = function () {
         return new Promise((resolve, reject) => {
-            sendRequest(`https://my.callofduty.com/api/papi-client/userfeed/v1/friendFeed/rendered/en/${ssoCookie}`).then(data => resolve(data)).catch(e => reject(e));
+            var urlInput = defaultBaseURL + util.format(`userfeed/v1/friendFeed/rendered/en/${ssoCookie}`);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getLoggedInIdentities = function () {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format(`crm/cod/v2/identities/${ssoCookie}`);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getLoggedInUserInfo = function () {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultProfileURL + util.format(`cod/userInfo/${ssoCookie}`);
+           sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+
+    module.sendFriendAction = function(action, gamertag, platform = config.platform) {
+        //COD.api.papi.sendFriendAction("invite", "battle", "gamer", "Leafized#1482", (res) => { console.log(res); }, (err) => console.log(err))
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/%s/gamer/%s?context=web`, action, platform, gamertag);
+            console.log(urlInput);
+            postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    sendRequestUserInfoOnly = (url) => {
+        return new Promise((resolve, reject) => {
+            if (!loggedIn) reject("Not Logged In.");
+            apiAxios.get(url).then(body => {
+                if (debug === 1) {
+                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data).length} bytes.`);
+                }
+                resolve(JSON.parse(body.data.replace(/^userInfo\(/, "").replace(/\);$/, "")));
+            }).catch(err => reject(err));
         });
     };
     
@@ -346,6 +409,24 @@ module.exports = function(config = {}) {
         });
     };
     
+    postRequest = (url) => {
+        return new Promise((resolve, reject) => {
+            if(!loggedIn) reject("Not Logged In.");
+            url = "https://my.callofduty.com/api/papi-client/codfriends/v1/invite/battle/gamer/Leafized%231482?context=web";
+            apiAxios.post(url, JSON.stringify({})).then(body => {
+                if(debug === 1) {
+                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
+                }
+                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
+                    if(body.data.data.message.includes("user not found")) reject("user not found.");
+                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
+                    else reject(body.data.data.message);
+                resolve(body.data.data); 
+            }).catch(err => reject(err));
+        });
+    };
+
     postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
