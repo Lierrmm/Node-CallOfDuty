@@ -1,26 +1,32 @@
 const axios = require('axios');
 const uniqid = require('uniqid');
 const rateLimit = require('axios-rate-limit');
+const cors_proxy = require('./cors');
 const util = require("util");
 const crypto = require('crypto');
 
 const userAgent = "Node/1.0.27";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
 let loggedIn = false;
+let useCORS = 0;
+
 
 let apiAxios = axios.create({
     headers: {
       common: {
         "content-type": "application/json",
         "Cookie": baseCookie,
-        "userAgent": userAgent
+        "userAgent": userAgent,
+        "x-requested-with": userAgent
       },
     },
 });
 
 let loginAxios = apiAxios;
 
-const defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
+let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
+let loginURL = "https://profile.callofduty.com/cod/mapp/";
+const defaultCORs = "http://localhost:1337/";
 const infiniteWarfare = "iw";
 const worldWar2 = "wwii";
 const blackops3 = "bo3";
@@ -31,17 +37,27 @@ const modernwarfare = "mw";
 module.exports = function(config = {}) {
     var module = {};
     if(config.platform == undefined) config.platform = "psn";
-
+    if(typeof config.useCORS === "number") useCORS = config.useCORS;
+    if(useCORS === 1) {
+        defaultBaseURL = `${defaultCORs}${defaultBaseURL}`;
+        loginURL = `${defaultCORs}${loginURL}`;
+        cors_proxy.createServer({
+            originWhitelist: [],
+            requireHeader: ['origin', 'x-requested-with']
+        }).listen("1337", "0.0.0.0");
+    }
     try {
         if(typeof config.ratelimit === "object") apiAxios = rateLimit(apiAxios, config.ratelimit);
     } catch(Err) { console.log("Could not parse ratelimit object. ignoring."); }
+
 
     module.platforms = {
         battle: "battle",
         steam: "steam", 
         psn: "psn", 
         xbl: "xbl",
-        acti: "uno"
+        acti: "uno",
+        uno: "uno"
     };
 
     module.login = function(email, password) {
@@ -49,13 +65,13 @@ module.exports = function(config = {}) {
             let randomId = uniqid();
             let md5sum = crypto.createHash('md5');
             let deviceId = md5sum.update(randomId).digest('hex');
-            postReq("https://profile.callofduty.com/cod/mapp/registerDevice", { 
+            postReq(`${loginURL}registerDevice`, { 
                 'deviceId': deviceId
             }).then((response) => {
                 let authHeader = response.data.authHeader;
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
-                postReq("https://profile.callofduty.com/cod/mapp/login", { "email": email, "password": password }).then((data) => {
+                postReq(`${loginURL}login`, { "email": email, "password": password }).then((data) => {
                     if(!data.success) throw Error("Unsuccessful login.");
                     apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
                     loggedIn = true;
@@ -292,6 +308,7 @@ module.exports = function(config = {}) {
     sendRequest = (url) => {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
+            console.log(url);
             apiAxios.get(url).then(body => {
                 if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
                     if(body.data.data.message.includes("user not found")) reject("user not found.");
@@ -304,6 +321,7 @@ module.exports = function(config = {}) {
     
     postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
+            console.log(url);
             loginAxios.post(url, data, headers).then(response => {
                 response = response.data;
                 resolve(response);
