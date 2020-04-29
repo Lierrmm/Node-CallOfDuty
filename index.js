@@ -243,6 +243,17 @@ module.exports = function(config = {}) {
         });
     };
 
+    module.MWfriends = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "battle") reject(`Battlenet friends are not supported. Try a different platform.`);
+            if (platform === "uno") gamertag = this.cleanClientName(gamertag);
+            console.log("Will only work for the account you are logged in as");
+            const urlInput = defaultBaseURL + util.format('stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/friends/type/mp', modernwarfare, platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.MWstats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
