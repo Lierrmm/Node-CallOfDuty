@@ -7,9 +7,10 @@ const crypto = require('crypto');
 
 const userAgent = "Node/1.0.27";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
+let ssoCookie;
 let loggedIn = false;
 let useCORS = 0;
-
+let debug = 0;
 
 let apiAxios = axios.create({
     headers: {
@@ -33,7 +34,6 @@ const blackops3 = "bo3";
 const blackops4 = "bo4";
 const modernwarfare = "mw";
 
-
 module.exports = function(config = {}) {
     var module = {};
     if(config.platform == undefined) config.platform = "psn";
@@ -46,6 +46,23 @@ module.exports = function(config = {}) {
             requireHeader: ['origin', 'x-requested-with']
         }).listen("1337", "0.0.0.0");
     }
+
+    if(config.debug === 1) {
+        debug = 1;
+        apiAxios.interceptors.request.use((resp) => {
+            resp.headers['request-startTime'] = process.hrtime();
+            return resp;
+        });
+
+        apiAxios.interceptors.response.use((response) => {
+            const start = response.config.headers['request-startTime'];
+            const end = process.hrtime(start);
+            const milliseconds = Math.round((end[0] * 1000) + (end[1] / 1000000));
+            response.headers['request-duration'] = milliseconds;
+            return response;
+        });
+    }
+
     try {
         if(typeof config.ratelimit === "object") apiAxios = rateLimit(apiAxios, config.ratelimit);
     } catch(Err) { console.log("Could not parse ratelimit object. ignoring."); }
@@ -73,6 +90,7 @@ module.exports = function(config = {}) {
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
                 postReq(`${loginURL}login`, { "email": email, "password": password }).then((data) => {
                     if(!data.success) throw Error("Unsuccessful login.");
+                    ssoCookie = data.s_ACT_SSO_COOKIE;
                     apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
                     loggedIn = true;
                     resolve("Successful Login.");
@@ -304,12 +322,21 @@ module.exports = function(config = {}) {
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
+
+    module.getEventFeed = function () {
+        return new Promise((resolve, reject) => {
+            sendRequest(`https://my.callofduty.com/api/papi-client/userfeed/v1/friendFeed/rendered/en/${ssoCookie}`).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
     
     sendRequest = (url) => {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
-            console.log(url);
             apiAxios.get(url).then(body => {
+                if(debug === 1) {
+                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
+                }
                 if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
                     if(body.data.data.message.includes("user not found")) reject("user not found.");
                     else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
@@ -321,7 +348,6 @@ module.exports = function(config = {}) {
     
     postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
-            console.log(url);
             loginAxios.post(url, data, headers).then(response => {
                 response = response.data;
                 resolve(response);
