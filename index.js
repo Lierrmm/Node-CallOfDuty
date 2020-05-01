@@ -321,6 +321,34 @@ module.exports = function(config = {}) {
         });
     };
 
+
+    module.MWwzstats = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "battle" || platform === "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("stats/cod/v1/title/%s/platform/%s/gamer/%s/profile/type/wz", modernwarfare, platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    /**
+     * TODO: Make this a nicer function
+     */
+    module.MWweeklystats = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            weeklyStats = [];
+            weeklyStats.wz = {};
+            weeklyStats.mp = {};
+            this.MWstats(gamertag, platform).then((data) => {
+                if (typeof data.weekly !== "undefined") weeklyStats.mp = data.weekly;
+                this.MWwzstats(gamertag, platform).then((data) => {
+                    if (typeof data.weekly !== "undefined") weeklyStats.wz = data.weekly;
+                    resolve(weeklyStats);
+                }).catch(e => reject(e));
+            }).catch(e => reject(e));
+        });
+    };
+
     module.MWloot = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
