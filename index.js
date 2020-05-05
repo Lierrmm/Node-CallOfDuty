@@ -140,6 +140,20 @@ module.exports = function(config = {}) {
         });
     };   
 
+    module.WWIIScheduledAchievements = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/wwii/platform/%s/achievements/scheduled/gamer/%s", platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.WWIIAchievements = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/wwii/platform/%s/achievements/gamer/%s", platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.BO3Stats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             var urlInput = defaultBaseURL + util.format("crm/cod/v2/title/%s/platform/%s/gamer/%s/profile/", blackops3, platform, gamertag);
@@ -367,6 +381,13 @@ module.exports = function(config = {}) {
         });
     };
 
+    module.MWMapList = function(platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format("ce/v1/title/mw/platform/%s/gameType/mp/communityMapData/availability", platform);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.friendFeed = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
@@ -404,6 +425,36 @@ module.exports = function(config = {}) {
             var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/%s/gamer/%s?context=web`, action, platform, gamertag);
             console.log(urlInput);
             postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getBattlePassInfo = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/gamer/%s/status/en", platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getCodPoints = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
+            var urlInput = defaultBaseURL + util.format("inventory/v1/title/mw/platform/%s/gamer/%s/currency", platform, gamertag);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getBattlePassLoot = function(season, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format("loot/title/mw/platform/%s/list/loot_season_%d/en", platform, season);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getPurchasable = function(platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            var urlInput = defaultBaseURL + util.format("inventory/v1/title/mw/platform/%s/purchasable", platform);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
