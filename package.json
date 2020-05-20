@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,10 @@
     "url": "https://github.com/Lierrmm/Node-CallOfDuty/issues"
   },
   "homepage": "https://github.com/Lierrmm/Node-CallOfDuty#readme",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Lierrmm"
+  },
   "dependencies": {
     "axios": "^0.19.2",
     "axios-rate-limit": "^1.2.1",
