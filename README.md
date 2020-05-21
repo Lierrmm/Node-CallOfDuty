@@ -24,6 +24,11 @@ Join the discord: [here](https://discord.gg/NuUpvzC)
 
 Call of Duty Api is a wrapper for the "private" API that Activision use on the callofduty.com website.
 
+## Install
+```sh
+npm install call-of-duty-api
+```
+
 ## Initialize Module
 ```javascript
 const API = require('call-of-duty-api')();
