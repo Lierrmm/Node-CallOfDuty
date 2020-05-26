@@ -78,7 +78,8 @@ module.exports = function(config = {}) {
         psn: "psn", 
         xbl: "xbl",
         acti: "uno",
-        uno: "uno"
+        uno: "uno",
+        all: "all"
     };
 
     module.login = function(email, password) {
@@ -489,14 +490,22 @@ module.exports = function(config = {}) {
         });
     };
 
-
-    module.sendFriendAction = function(action, gamertag, platform = config.platform) {
+    module.sendFriendAction = function(action, unoId) {
         //COD.api.papi.sendFriendAction("invite", "battle", "gamer", "Leafized#1482", (res) => { console.log(res); }, (err) => console.log(err))
         return new Promise((resolve, reject) => {
-            if (platform === "battle" || platform == "uno") gamertag = this.cleanClientName(gamertag);
-            var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/%s/gamer/%s?context=web`, action, platform, gamertag);
+            var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/uno/gamer/%s?context=web`, action, gamertag);
             console.log(urlInput);
             postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.FuzzySearch = function(query, platform = config.platform) {
+        //https://my.callofduty.com/api/papi-client/crm/cod/v2/platform/uno/username/Lierrmm/search
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno" || platform == "all") query = this.cleanClientName(query);
+            var urlInput = defaultBaseURL + util.format(`crm/cod/v2/platform/%s/username/%s/search`, platform, query);
+            console.log(urlInput);
+            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
