@@ -541,6 +541,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (!loggedIn) reject("Not Logged In.");
             apiAxios.get(url).then(body => {
+                if(body.status == 403) reject("Forbidden. You may be IP banned.");
                 if (debug === 1) {
                     console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
                     console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data).length} bytes.`);
@@ -554,6 +555,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
             apiAxios.get(url).then(body => {
+                if(body.status == 403) reject("Forbidden. You may be IP banned.");
                 if(debug === 1) {
                     console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
                     console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
@@ -572,6 +574,7 @@ module.exports = function(config = {}) {
             if(!loggedIn) reject("Not Logged In.");
             url = "https://my.callofduty.com/api/papi-client/codfriends/v1/invite/battle/gamer/Leafized%231482?context=web";
             apiAxios.post(url, JSON.stringify({})).then(body => {
+                if(body.status == 403) reject("Forbidden. You may be IP banned.");
                 if(debug === 1) {
                     console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
                     console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
@@ -588,6 +591,7 @@ module.exports = function(config = {}) {
     postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
+                if(response.status == 403) reject("Forbidden. You may be IP banned.");
                 response = response.data;
                 resolve(response);
             }).catch((err) => {
