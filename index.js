@@ -100,9 +100,11 @@ module.exports = function(config = {}) {
                     loggedIn = true;
                     resolve("Successful Login.");
                 }).catch((err) => {
+                    if(typeof err === "string") reject(err);
                     reject(err.message);
                 });
             }).catch((err) => {
+                if(typeof err === "string") reject(err);
                 reject(err.message);
             });  
         });
@@ -595,6 +597,7 @@ module.exports = function(config = {}) {
                 response = response.data;
                 resolve(response);
             }).catch((err) => {
+                if(err.status == 403) reject("Forbidden. You may be IP banned.");
                 reject(err.message);
             });
         });
