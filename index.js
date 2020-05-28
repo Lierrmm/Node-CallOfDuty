@@ -494,7 +494,6 @@ module.exports = function(config = {}) {
         //COD.api.papi.sendFriendAction("invite", "battle", "gamer", "Leafized#1482", (res) => { console.log(res); }, (err) => console.log(err))
         return new Promise((resolve, reject) => {
             var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/uno/gamer/%s?context=web`, action, gamertag);
-            console.log(urlInput);
             postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
@@ -504,7 +503,6 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno" || platform == "all") query = this.cleanClientName(query);
             var urlInput = defaultBaseURL + util.format(`crm/cod/v2/platform/%s/username/%s/search`, platform, query);
-            console.log(urlInput);
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
