@@ -373,14 +373,14 @@ module.exports = function(config = {}) {
 
     module.MWBattleData = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
-            brDetails = [{}];
+            brDetails = {};
             this.MWwz(gamertag, platform).then(data => {
                 if(typeof data.lifetime !== "undefined") {
-                    if(typeof data.lifetime.mode.br !== "undefined") { data.lifetime.mode.br.properties.title = "br"; brDetails[0].br = data.lifetime.mode.br.properties; }
-                    if(typeof data.lifetime.mode.br_dmz !== "undefined") { data.lifetime.mode.br_dmz.properties.title = "br_dmz"; brDetails[0].br_dmz  = data.lifetime.mode.br_dmz.properties; }
-                    if(typeof data.lifetime.mode.br_all !== "undefined") { data.lifetime.mode.br_all.properties.title = "br_all"; brDetails[0].br_all  = data.lifetime.mode.br_all.properties; }
+                    if(typeof data.lifetime.mode.br !== "undefined") { data.lifetime.mode.br.properties.title = "br"; brDetails.br = data.lifetime.mode.br.properties; }
+                    if(typeof data.lifetime.mode.br_dmz !== "undefined") { data.lifetime.mode.br_dmz.properties.title = "br_dmz"; brDetails.br_dmz  = data.lifetime.mode.br_dmz.properties; }
+                    if(typeof data.lifetime.mode.br_all !== "undefined") { data.lifetime.mode.br_all.properties.title = "br_all"; brDetails.br_all  = data.lifetime.mode.br_all.properties; }
                 }
-                resolve(brDetails[0]);
+                resolve(brDetails);
             }).catch(e => reject(e));
         });
     };
