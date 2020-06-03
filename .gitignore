@@ -62,4 +62,4 @@ typings/
 
 test.js
 _.js
-out.json
+*.json
