@@ -375,10 +375,15 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             brDetails = {};
             this.MWwz(gamertag, platform).then(data => {
-                if(typeof data.lifetime !== "undefined") {
-                    if(typeof data.lifetime.mode.br !== "undefined") { data.lifetime.mode.br.properties.title = "br"; brDetails.br = data.lifetime.mode.br.properties; }
-                    if(typeof data.lifetime.mode.br_dmz !== "undefined") { data.lifetime.mode.br_dmz.properties.title = "br_dmz"; brDetails.br_dmz  = data.lifetime.mode.br_dmz.properties; }
-                    if(typeof data.lifetime.mode.br_all !== "undefined") { data.lifetime.mode.br_all.properties.title = "br_all"; brDetails.br_all  = data.lifetime.mode.br_all.properties; }
+                let lifetime = data.lifetime;
+                if(typeof lifetime !== "undefined") {
+                    let filtered = Object.keys(lifetime.mode).filter(x => x.startsWith("br")).reduce((obj, key) => {
+                        obj[key] = lifetime.mode[key];
+                        return obj;
+                    }, {});
+                    if(typeof filtered.br !== "undefined") { filtered.br.properties.title = "br"; brDetails.br = filtered.br.properties; }
+                    if(typeof filtered.br_dmz !== "undefined") { filtered.br_dmz.properties.title = "br_dmz"; brDetails.br_dmz  = filtered.br_dmz.properties; }
+                    if(typeof filtered.br_all !== "undefined") { filtered.br_all.properties.title = "br_all"; brDetails.br_all  = filtered.br_all.properties; }
                 }
                 resolve(brDetails);
             }).catch(e => reject(e));
@@ -431,9 +436,7 @@ module.exports = function(config = {}) {
      */
     module.MWweeklystats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
-            weeklyStats = [];
-            weeklyStats.wz = {};
-            weeklyStats.mp = {};
+            weeklyStats = {};
             this.MWstats(gamertag, platform).then((data) => {
                 if (typeof data.weekly !== "undefined") weeklyStats.mp = data.weekly;
                 this.MWwzstats(gamertag, platform).then((data) => {
@@ -498,16 +501,14 @@ module.exports = function(config = {}) {
         });
     };
 
-    module.sendFriendAction = function(action, unoId) {
-        //COD.api.papi.sendFriendAction("invite", "battle", "gamer", "Leafized#1482", (res) => { console.log(res); }, (err) => console.log(err))
+    module.sendFriendAction = function(action, type, unoId) {
         return new Promise((resolve, reject) => {
-            var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/uno/gamer/%s?context=web`, action, gamertag);
+            var urlInput = defaultBaseURL + util.format(`codfriends/v1/%s/uno/%s/%s?context=web`, action, type, unoId);
             postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.FuzzySearch = function(query, platform = config.platform) {
-        //https://my.callofduty.com/api/papi-client/crm/cod/v2/platform/uno/username/Lierrmm/search
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno" || platform == "all") query = this.cleanClientName(query);
             var urlInput = defaultBaseURL + util.format(`crm/cod/v2/platform/%s/username/%s/search`, platform, query);

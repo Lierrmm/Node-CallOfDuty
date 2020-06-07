@@ -94,7 +94,7 @@ API.MWstats(<gamertag>, API.platforms.<platform>).then((output) => {
 ```javascript
 const API = require('call-of-duty-api')({ platform: "battle" });
 //I want Warzone Data
-API.MWwz('Lierrmm#2364').then(data => {
+API.MWBattleData('Lierrmm#2364').then(data => {
     console.log(data);  // see output
 }).catch(err => {
     console.log(err);
