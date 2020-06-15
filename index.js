@@ -14,14 +14,14 @@ let debug = 0;
 
 let apiAxios = axios.create({
     headers: {
-      common: {
-        "content-type": "application/json",
-        "Cookie": baseCookie,
-        "userAgent": userAgent,
-        "x-requested-with": userAgent,
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Connection": "keep-alive"
-      },
+        common: {
+            "content-type": "application/json",
+            "Cookie": baseCookie,
+            "userAgent": userAgent,
+            "x-requested-with": userAgent,
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Connection": "keep-alive"
+        },
     },
 });
 
@@ -497,7 +497,7 @@ module.exports = function(config = {}) {
     module.getLoggedInUserInfo = function () {
         return new Promise((resolve, reject) => {
             var urlInput = defaultProfileURL + util.format(`cod/userInfo/${ssoCookie}`);
-           sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -564,18 +564,38 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
             apiAxios.get(url).then(body => {
-                if(body.status == 403) reject("Forbidden. You may be IP banned.");
                 if(debug === 1) {
                     console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
                     console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
                 }
-                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
-                    if(body.data.data.message.includes("user not found")) reject("user not found.");
-                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
-                    else reject(body.data.data.message);
-                resolve(body.data.data); 
+
+                if (typeof body.data.status !== "undefined" && body.data.status === 'success') {
+                    resolve(body.data.data);
+                }
+                else {
+                    reject(apiErrorHandling(body));
+                }
             }).catch(err => reject(err));
         });
+    };
+
+    apiErrorHandling = (error) => {
+        if (error.status == 200) {
+            const apiErrorMessage = (error.data.data.message !== undefined) ? error.data.data.message : 'No error returned from API.';
+
+            if (apiErrorMessage.includes('user not found')) {
+                return 'User not found.'
+            }     
+            else if (apiErrorMessage.includes('rate limit exceeded')) {
+                return 'Rate limited.'
+            }  
+            else {
+                return apiErrorMessage;
+            }
+        }
+        else if (error.status == 403) {
+            return 'Forbidden. You may have been IP banned.';
+        }
     };
     
     postRequest = (url) => {
@@ -583,16 +603,17 @@ module.exports = function(config = {}) {
             if(!loggedIn) reject("Not Logged In.");
             url = "https://my.callofduty.com/api/papi-client/codfriends/v1/invite/battle/gamer/Leafized%231482?context=web";
             apiAxios.post(url, JSON.stringify({})).then(body => {
-                if(body.status == 403) reject("Forbidden. You may be IP banned.");
                 if(debug === 1) {
                     console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
                     console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
                 }
-                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
-                    if(body.data.data.message.includes("user not found")) reject("user not found.");
-                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
-                    else reject(body.data.data.message);
-                resolve(body.data.data); 
+                
+                if (typeof body.data.status !== "undefined" && body.data.status === 'success') {
+                    resolve(body.data.data);
+                }
+                else {
+                    reject(apiErrorHandling(body));
+                }
             }).catch(err => reject(err));
         });
     };
