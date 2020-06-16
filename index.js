@@ -14,14 +14,14 @@ let debug = 0;
 
 let apiAxios = axios.create({
     headers: {
-      common: {
-        "content-type": "application/json",
-        "Cookie": baseCookie,
-        "userAgent": userAgent,
-        "x-requested-with": userAgent,
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Connection": "keep-alive"
-      },
+        common: {
+            "content-type": "application/json",
+            "Cookie": baseCookie,
+            "userAgent": userAgent,
+            "x-requested-with": userAgent,
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Connection": "keep-alive"
+        },
     },
 });
 
@@ -94,11 +94,11 @@ module.exports = function(config = {}) {
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
                 postReq(`${loginURL}login`, { "email": email, "password": password }).then((data) => {
-                    if(!data.success) throw Error("Unsuccessful login.");
+                    if(!data.success) throw Error("401 - Unauthorized. Incorrect username or password.");
                     ssoCookie = data.s_ACT_SSO_COOKIE;
                     apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
                     loggedIn = true;
-                    resolve("Successful Login.");
+                    resolve("200 - OK. Log in successful.");
                 }).catch((err) => {
                     if(typeof err === "string") reject(err);
                     reject(err.message);
@@ -497,7 +497,7 @@ module.exports = function(config = {}) {
     module.getLoggedInUserInfo = function () {
         return new Promise((resolve, reject) => {
             var urlInput = defaultProfileURL + util.format(`cod/userInfo/${ssoCookie}`);
-           sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -563,18 +563,21 @@ module.exports = function(config = {}) {
     sendRequest = (url) => {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
-            apiAxios.get(url).then(body => {
-                if(body.status == 403) reject("Forbidden. You may be IP banned.");
+            apiAxios.get(url).then(response => {
                 if(debug === 1) {
-                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
-                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
+                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
                 }
-                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
-                    if(body.data.data.message.includes("user not found")) reject("user not found.");
-                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
-                    else reject(body.data.data.message);
-                resolve(body.data.data); 
-            }).catch(err => reject(err));
+
+                if (response.data.status !== undefined && response.data.status === 'success') {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(apiErrorHandling(response));
+                }
+            }).catch((error) => {
+                reject(apiErrorHandling(error.response));
+            });
         });
     };
     
@@ -582,32 +585,63 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if(!loggedIn) reject("Not Logged In.");
             url = "https://my.callofduty.com/api/papi-client/codfriends/v1/invite/battle/gamer/Leafized%231482?context=web";
-            apiAxios.post(url, JSON.stringify({})).then(body => {
-                if(body.status == 403) reject("Forbidden. You may be IP banned.");
+            apiAxios.post(url, JSON.stringify({})).then(response => {
                 if(debug === 1) {
-                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
-                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data.data).length} bytes.`);
+                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
                 }
-                if(typeof body.data.data.message !== "undefined" && body.data.data.message.includes("Not permitted"))
-                    if(body.data.data.message.includes("user not found")) reject("user not found.");
-                    else if(body.data.data.message.includes("rate limit exceeded")) reject("Rate Limited.");
-                    else reject(body.data.data.message);
-                resolve(body.data.data); 
-            }).catch(err => reject(err));
+                
+                if (response.data.status !== undefined && response.data.status === 'success') {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(apiErrorHandling(response));
+                }
+            }).catch((error) => {
+                reject(apiErrorHandling(error.response));
+            });
         });
     };
 
     postReq = (url, data, headers = null) => {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
-                if(response.status == 403) reject("Forbidden. You may be IP banned.");
-                response = response.data;
-                resolve(response);
-            }).catch((err) => {
-                if(err.status == 403) reject("Forbidden. You may be IP banned.");
-                reject(err.message);
+                resolve(response.data);
+            }).catch((error) => {
+                reject(apiErrorHandling(error.response));
             });
         });
+    };
+
+    apiErrorHandling = (response) => {
+        if (response.status == 200) {
+            const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined ) ? response.message : 'No error returned from API.';
+
+            if (apiErrorMessage === 'Not permitted: user not found') {
+                return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
+            }     
+            else if (apiErrorMessage === 'Not permitted: rate limit exceeded') {
+                return '429 - Too many requests. Try again in a few minutes.';
+            }  
+            else if (apiErrorMessage === 'Error from datastore') {
+                return '500 - Internal server error. Request failed, try again.';
+            }
+            else {
+                return apiErrorMessage;
+            }
+        }
+        else if (response.status == 401) {
+            return '401 - Unauthorized. Incorrect username or password.';
+        }
+        else if (response.status == 403) {
+            return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
+        }
+        else if (response.status == 500) {
+            return '500 - Internal server error. Request failed, try again.';
+        }
+        else if (response.status == 502) {
+            return '502 - Bad gateway. Request failed, try again.';
+        }
     };
 
     module.apiAxios = apiAxios;
