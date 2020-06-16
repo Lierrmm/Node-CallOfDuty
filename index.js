@@ -431,9 +431,6 @@ module.exports = function(config = {}) {
         });
     };
 
-    /**
-     * TODO: Make this a nicer function
-     */
     module.MWweeklystats = function (gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             weeklyStats = {};
@@ -614,33 +611,31 @@ module.exports = function(config = {}) {
     };
 
     apiErrorHandling = (response) => {
-        if (response.status == 200) {
-            const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined ) ? response.message : 'No error returned from API.';
 
-            if (apiErrorMessage === 'Not permitted: user not found') {
-                return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
-            }     
-            else if (apiErrorMessage === 'Not permitted: rate limit exceeded') {
-                return '429 - Too many requests. Try again in a few minutes.';
-            }  
-            else if (apiErrorMessage === 'Error from datastore') {
+        switch(response.status) {
+            case 200:
+                const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined ) ? response.message : 'No error returned from API.';
+                switch(apiErrorMessage) {
+                    case 'Not permitted: user not found':
+                        return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
+                    case 'Not permitted: rate limit exceeded':
+                        return '429 - Too many requests. Try again in a few minutes.';
+                    case 'Error from datastore':
+                        return '500 - Internal server error. Request failed, try again.';
+                    default:
+                        return apiErrorMessage;
+                }
+                break;
+            case 401:
+                return '401 - Unauthorized. Incorrect username or password.';
+            case 403:
+                return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
+            case 500:
                 return '500 - Internal server error. Request failed, try again.';
-            }
-            else {
-                return apiErrorMessage;
-            }
-        }
-        else if (response.status == 401) {
-            return '401 - Unauthorized. Incorrect username or password.';
-        }
-        else if (response.status == 403) {
-            return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
-        }
-        else if (response.status == 500) {
-            return '500 - Internal server error. Request failed, try again.';
-        }
-        else if (response.status == 502) {
-            return '502 - Bad gateway. Request failed, try again.';
+            case 502:
+                return '502 - Bad gateway. Request failed, try again.';
+            default:
+                return `We Could not get a valid reason for a failure. Status: ${response.status}`; 
         }
     };
 
