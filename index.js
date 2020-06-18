@@ -542,7 +542,11 @@ module.exports = function(config = {}) {
             sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
-
+    
+    module.isLoggedIn = function () {
+        return loggedIn;
+    };
+    
     sendRequestUserInfoOnly = (url) => {
         return new Promise((resolve, reject) => {
             if (!loggedIn) reject("Not Logged In.");
