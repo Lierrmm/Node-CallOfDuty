@@ -1,4 +1,4 @@
-![](https://badgen.net/npm/dt/call-of-duty-api?icon=npm)
+![](https://badgen.net/npm/dt/call-of-duty-api?icon=npm) <span class="badge-githubsponsors"><a href="https://github.com/sponsors/lierrmm" title="Donate to this project using GitHub Sponsors"><img src="https://img.shields.io/badge/github-donate-yellow.svg" alt="GitHub Sponsors donate button" /></a></span>
 
 # MAJOR CHANGES
 
