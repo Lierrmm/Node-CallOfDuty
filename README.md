@@ -1,3 +1,5 @@
+![](https://badgen.net/npm/dt/call-of-duty-api?icon=npm)
+
 # MAJOR CHANGES
 
 You will now have to login to the API before making any requests. This means you will need a call of duty account.
