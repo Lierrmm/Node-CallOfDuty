@@ -1,7 +1,6 @@
 const axios = require('axios');
 const uniqid = require('uniqid');
 const rateLimit = require('axios-rate-limit');
-const util = require("util");
 const crypto = require('crypto');
 
 const userAgent = "a4b471be-4ad2-47e2-ba0e-e1f2aa04bff9";
@@ -24,7 +23,6 @@ let apiAxios = axios.create({
 });
 
 let loginAxios = apiAxios;
-
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
 let loginURL = "https://profile.callofduty.com/cod/mapp/";
 let defaultProfileURL = "https://profile.callofduty.com/";
