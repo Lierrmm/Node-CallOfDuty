@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
@@ -33,8 +33,6 @@
   "dependencies": {
     "axios": "^0.19.2",
     "axios-rate-limit": "^1.2.1",
-    "http-proxy": "^1.18.1",
-    "proxy-from-env": "^1.1.0",
     "uniqid": "^5.2.0"
   }
 }
