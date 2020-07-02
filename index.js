@@ -39,6 +39,80 @@ class helpers {
     cleanClientName(gamertag) {
         return encodeURIComponent(gamertag);
     }
+
+    sendRequestUserInfoOnly(url) {
+        return new Promise((resolve, reject) => {
+            if (!loggedIn) reject("Not Logged In.");
+            apiAxios.get(url).then(body => {
+                if (body.status == 403) reject("Forbidden. You may be IP banned.");
+                if (debug === 1) {
+                    console.log(`[DEBUG]`, `Build URI: ${url}`);
+                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data).length} bytes.`);
+                }
+                resolve(JSON.parse(body.data.replace(/^userInfo\(/, "").replace(/\);$/, "")));
+            }).catch(err => reject(err));
+        });
+    }
+
+    sendRequest(url) {
+        return new Promise((resolve, reject) => {
+            if (!loggedIn) reject("Not Logged In.");
+            apiAxios.get(url).then(response => {
+                if (debug === 1) {
+                    console.log(`[DEBUG]`, `Build URI: ${url}`);
+                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
+                }
+
+                if (response.data.status !== undefined && response.data.status === 'success') {
+                    resolve(response.data.data);
+                } else {
+                    reject(this.apiErrorHandling(response));
+                }
+            }).catch((error) => {
+                reject(this.apiErrorHandling(error.response));
+            });
+        });
+    }
+
+    postReq(url, data, headers = null) {
+        return new Promise((resolve, reject) => {
+            loginAxios.post(url, data, headers).then(response => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(this.apiErrorHandling(error.response));
+            });
+        });
+    }
+
+    apiErrorHandling(response) {
+        switch (response.status) {
+            case 200:
+                const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined) ? response.message : 'No error returned from API.';
+                switch (apiErrorMessage) {
+                    case 'Not permitted: user not found':
+                        return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
+                    case 'Not permitted: rate limit exceeded':
+                        return '429 - Too many requests. Try again in a few minutes.';
+                    case 'Error from datastore':
+                        return '500 - Internal server error. Request failed, try again.';
+                    default:
+                        return apiErrorMessage;
+                }
+                break;
+            case 401:
+                return '401 - Unauthorized. Incorrect username or password.';
+            case 403:
+                return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
+            case 500:
+                return '500 - Internal server error. Request failed, try again.';
+            case 502:
+                return '502 - Bad gateway. Request failed, try again.';
+            default:
+                return `We Could not get a valid reason for a failure. Status: ${response.status}`;
+        }
+    }
 }
 
 module.exports = function(config = {}) {
@@ -83,13 +157,13 @@ module.exports = function(config = {}) {
             let randomId = uniqid();
             let md5sum = crypto.createHash('md5');
             let deviceId = md5sum.update(randomId).digest('hex');
-            postReq(`${loginURL}registerDevice`, {
+            _helpers.postReq(`${loginURL}registerDevice`, {
                 'deviceId': deviceId
             }).then((response) => {
                 let authHeader = response.data.authHeader;
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
-                postReq(`${loginURL}login`, {
+                _helpers.postReq(`${loginURL}login`, {
                     "email": email,
                     "password": password
                 }).then((data) => {
@@ -114,49 +188,49 @@ module.exports = function(config = {}) {
     module.IwWeekly = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/iw/platform/${platform}/gamer/${gamertag}/summary/`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.IWStats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/iw/platform/${platform}/gamer/${gamertag}/profile/`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.WWIIWeekly = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/platform/${platform}/gamer/${gamertag}/summary/`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.WWIIStats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/platform/${platform}/gamer/${gamertag}/profile/`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.WWIIScheduledAchievements = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/platform/${platform}/achievements/scheduled/gamer/${gamertag}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.WWIIAchievements = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/platform/${platform}/achievements/gamer/${gamertag}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.BO3Stats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo3/platform/${platform}/gamer/${gamertag}/profile/`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -165,7 +239,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/profile/type/mp`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -174,7 +248,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/profile/type/zm`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -183,7 +257,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/profile/type/mp`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -192,7 +266,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/profile/type/wz`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -201,7 +275,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") reject("Battlenet does not support Friends.");
             let urlInput = _helpers.buildUri(`leaderboards/v2/title/bo4/platform/${platform}/time/alltime/type/core/mode/career/gamer/${gamertag}/friends`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -210,7 +284,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/mp/start/0/end/0/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -219,7 +293,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/mp/start/${start}/end/${end}/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -228,7 +302,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/zombies/start/0/end/0/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -237,7 +311,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/zombies/start/${start}/end/${end}/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -246,7 +320,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/warzone/start/0/end/0/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -255,7 +329,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             if (platform === "battle") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/bo4/platform/${platform}/gamer/${gamertag}/matches/warzone/start/${start}/end/${end}/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -263,7 +337,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for BO4. Try `battle` instead.");
             let urlInput = _helpers.buildUri(`leaderboards/v2/title/bo4/platform/${platform}/time/alltime/type/core/mode/career/page/${page}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -271,7 +345,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             let urlInput = _helpers.buildUri(`leaderboards/v2/title/mw/platform/${platform}/time/alltime/type/core/mode/career/page/${page}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -280,7 +354,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/mp/start/0/end/0/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -289,7 +363,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/mp/start/${start}/end/${end}/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -298,7 +372,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/wz/start/0/end/0/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -307,7 +381,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/wz/start/${start}/end/${end}/details`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -316,7 +390,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/mp/start/0/end/0`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -325,7 +399,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/mp/start/${start}/end/${end}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -334,7 +408,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/wz/start/0/end/0`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -343,7 +417,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/gamer/${gamertag}/matches/wz/start/${start}/end/${end}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -352,7 +426,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/type/mp`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -361,7 +435,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/type/wz`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -399,7 +473,7 @@ module.exports = function(config = {}) {
             if (platform === "battle") reject(`Battlenet friends are not supported. Try a different platform.`);
             if (platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/friends/type/mp`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -409,7 +483,7 @@ module.exports = function(config = {}) {
             if (platform === "battle") reject(`Battlenet friends are not supported. Try a different platform.`);
             if (platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/friends/type/wz`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -418,7 +492,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/type/mp`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -428,7 +502,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/gamer/${gamertag}/profile/type/wz`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -450,7 +524,7 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`loot/title/mw/platform/${platform}/gamer/${gamertag}/status/en`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -459,14 +533,14 @@ module.exports = function(config = {}) {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`ce/v2/title/mw/platform/${platform}/gametype/all/gamer/${gamertag}/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.MWMapList = function(platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`ce/v1/title/mw/platform/${platform}/gameType/mp/communityMapData/availability`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -474,35 +548,28 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`userfeed/v1/friendFeed/platform/${platform}/gamer/${gamertag}/friendFeedEvents/en`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.getEventFeed = function() {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`userfeed/v1/friendFeed/rendered/en/${ssoCookie}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.getLoggedInIdentities = function() {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/identities/${ssoCookie}`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.getLoggedInUserInfo = function() {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildProfileUri(`cod/userInfo/${ssoCookie}`);
-            sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
-        });
-    };
-
-    module.sendFriendAction = function(action, type, unoId) {
-        return new Promise((resolve, reject) => {
-            let urlInput = _helpers.buildUri(`codfriends/v1/${action}/uno/${type}/${unoId}?context=web`);
-            postRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequestUserInfoOnly(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -510,7 +577,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno" || platform == "all") query = _helpers.cleanClientName(query);
             let urlInput = _helpers.buildUri(`crm/cod/v2/platform/${platform}/username/${query}/search`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -518,7 +585,7 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`loot/title/mw/platform/${platform}/gamer/${gamertag}/status/en`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
@@ -526,122 +593,26 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`inventory/v1/title/mw/platform/${platform}/gamer/${gamertag}/currency`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.getBattlePassLoot = function(season, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`loot/title/mw/platform/${platform}/list/loot_season_${season}/en`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.getPurchasable = function(platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`inventory/v1/title/mw/platform/${platform}/purchasable`);
-            sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
 
     module.isLoggedIn = function() {
         return loggedIn;
-    };
-
-    sendRequestUserInfoOnly = (url) => {
-        return new Promise((resolve, reject) => {
-            if (!loggedIn) reject("Not Logged In.");
-            apiAxios.get(url).then(body => {
-                if (body.status == 403) reject("Forbidden. You may be IP banned.");
-                if (debug === 1) {
-                    console.log(`[DEBUG]`, `Build URI: ${url}`);
-                    console.log(`[DEBUG]`, `Round trip took: ${body.headers['request-duration']}ms.`);
-                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(body.data).length} bytes.`);
-                }
-                resolve(JSON.parse(body.data.replace(/^userInfo\(/, "").replace(/\);$/, "")));
-            }).catch(err => reject(err));
-        });
-    };
-
-    sendRequest = (url) => {
-        return new Promise((resolve, reject) => {
-            if (!loggedIn) reject("Not Logged In.");
-            apiAxios.get(url).then(response => {
-                if (debug === 1) {
-                    console.log(`[DEBUG]`, `Build URI: ${url}`);
-                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
-                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
-                }
-
-                if (response.data.status !== undefined && response.data.status === 'success') {
-                    resolve(response.data.data);
-                } else {
-                    reject(apiErrorHandling(response));
-                }
-            }).catch((error) => {
-                reject(apiErrorHandling(error.response));
-            });
-        });
-    };
-
-    postRequest = (url) => {
-        return new Promise((resolve, reject) => {
-            if (!loggedIn) reject("Not Logged In.");
-            url = "https://my.callofduty.com/api/papi-client/codfriends/v1/invite/battle/gamer/Leafized%231482?context=web";
-            apiAxios.post(url, JSON.stringify({})).then(response => {
-                if (debug === 1) {
-                    console.log(`[DEBUG]`, `Build URI: ${url}`);
-                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
-                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
-                }
-
-                if (response.data.status !== undefined && response.data.status === 'success') {
-                    resolve(response.data.data);
-                } else {
-                    reject(apiErrorHandling(response));
-                }
-            }).catch((error) => {
-                reject(apiErrorHandling(error.response));
-            });
-        });
-    };
-
-    postReq = (url, data, headers = null) => {
-        return new Promise((resolve, reject) => {
-            loginAxios.post(url, data, headers).then(response => {
-                resolve(response.data);
-            }).catch((error) => {
-                reject(apiErrorHandling(error.response));
-            });
-        });
-    };
-
-    apiErrorHandling = (response) => {
-        switch (response.status) {
-            case 200:
-                const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined) ? response.message : 'No error returned from API.';
-                switch (apiErrorMessage) {
-                    case 'Not permitted: user not found':
-                        return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
-                    case 'Not permitted: rate limit exceeded':
-                        return '429 - Too many requests. Try again in a few minutes.';
-                    case 'Error from datastore':
-                        return '500 - Internal server error. Request failed, try again.';
-                    default:
-                        return apiErrorMessage;
-                }
-                break;
-            case 401:
-                return '401 - Unauthorized. Incorrect username or password.';
-            case 403:
-                return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
-            case 500:
-                return '500 - Internal server error. Request failed, try again.';
-            case 502:
-                return '502 - Bad gateway. Request failed, try again.';
-            default:
-                return `We Could not get a valid reason for a failure. Status: ${response.status}`;
-        }
     };
 
     module.apiAxios = apiAxios;
