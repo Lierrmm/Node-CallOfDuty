@@ -155,11 +155,3 @@ API.MWBattleData('Lierrmm#2364').then(data => {
     deaths: 67,
     title: 'br_all' } ]
 ```
-
-### Using the package for the map
-
-You may experience issues with the package when running via the web especially with react & webpack.
-
-I suggest using [ngrok](https://ngrok.com/) when running the project locally to bypass the CORS restrictions.
-
-Once you are in a live environment - you should see these issues don't appear.
