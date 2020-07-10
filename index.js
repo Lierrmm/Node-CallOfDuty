@@ -76,6 +76,27 @@ class helpers {
         });
     }
 
+    sendPostRequest(url, data) {
+        return new Promise((resolve, reject) => {
+            if (!loggedIn) reject("Not Logged In.");
+            apiAxios.post(url, JSON.stringify(data)).then(response => {
+                if (debug === 1) {
+                    console.log(`[DEBUG]`, `Build URI: ${url}`);
+                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data.data).length} bytes.`);
+                }
+
+                if (response.data.status !== undefined && response.data.status === 'success') {
+                    resolve(response.data.data);
+                } else {
+                    reject(this.apiErrorHandling(response));
+                }
+            }).catch((error) => {
+                reject(this.apiErrorHandling(error.response));
+            });
+        });
+    }
+
     postReq(url, data, headers = null) {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
@@ -607,6 +628,58 @@ module.exports = function(config = {}) {
     module.getPurchasable = function(platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`inventory/v1/title/mw/platform/${platform}/purchasable`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
+    module.purchaseItem = function(gamertag, item = "battle_pass_upgrade_bundle_4", platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
+            let urlInput = _helpers.buildUri(`inventory/v1/title/mw/platform/${platform}/gamer/${gamertag}/item/${item}/purchaseWith/CODPoints`);
+            _helpers.sendPostRequest(urlInput, {}).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.getGiftableFriends = function(unoId, itemSku = "432000") {
+        return new Promise((resolve, reject) => {
+            let urlInput = _helpers.buildUri(`gifting/v1/title/mw/platform/uno/${unoId}/sku/${itemSku}/giftableFriends`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.sendGift = function(gamertag, recipientUnoId, senderUnoId, itemSku = "432000", sendingPlatform = config.platform, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            let data = {
+                recipientUnoId: recipientUnoId,
+                senderUnoId: senderUnoId,
+                sendingPlatform: sendingPlatform,
+                sku: Number(itemSku)
+            };
+            if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
+            let urlInput = _helpers.buildUri(`gifting/v1/title/mw/platform/${platform}/gamer/${gamertag}`);
+            _helpers.sendPostRequest(urlInput, data).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.ConnectedAccounts = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
+            let urlInput = _helpers.buildUri(`crm/cod/v2/accounts/platform/${platform}/gamer/${gamertag}`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.Presence = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "battle" || platform == "uno") gamertag = _helpers.cleanClientName(gamertag);
+            let urlInput = _helpers.buildUri(`crm/cod/v2/friends/platform/${platform}/gamer/${gamertag}/presence/1/${ssoCookie}`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.Community = function() {
+        return new Promise((resolve, reject) => {
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/community`);
             _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
