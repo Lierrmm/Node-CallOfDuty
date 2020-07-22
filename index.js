@@ -374,8 +374,7 @@ module.exports = function(config = {}) {
     module.MWcombatmp = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
@@ -386,8 +385,7 @@ module.exports = function(config = {}) {
     module.MWcombatmpdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${start}/end/${end}/details`);
@@ -398,8 +396,7 @@ module.exports = function(config = {}) {
     module.MWcombatwz = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0/details`);
@@ -410,8 +407,7 @@ module.exports = function(config = {}) {
     module.MWcombatwzdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${start}/end/${end}/details`);
@@ -422,8 +418,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatmp = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
@@ -434,8 +429,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatmpdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${start}/end/${end}`);
@@ -446,8 +440,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatwz = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0`);
@@ -458,8 +451,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatwzdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${start}/end/${end}`);
@@ -548,8 +540,7 @@ module.exports = function(config = {}) {
     module.MWstats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
@@ -561,8 +552,7 @@ module.exports = function(config = {}) {
     module.MWwzstats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
-            let lookupType = "gamer";
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/wz`);
