@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "axios-rate-limit": "^1.2.1",
-    "capi-insights": "github:Lierrmm/capi-insights#master",
+    "capi-insights": "^1.0.1",
     "uniqid": "^5.2.0"
   }
 }
