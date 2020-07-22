@@ -374,7 +374,7 @@ module.exports = function(config = {}) {
     module.MWcombatmp = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -386,7 +386,7 @@ module.exports = function(config = {}) {
     module.MWcombatmpdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -398,7 +398,7 @@ module.exports = function(config = {}) {
     module.MWcombatwz = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -410,7 +410,7 @@ module.exports = function(config = {}) {
     module.MWcombatwzdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -422,7 +422,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatmp = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -434,7 +434,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatmpdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -446,7 +446,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatwz = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -458,7 +458,7 @@ module.exports = function(config = {}) {
     module.MWfullcombatwzdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -548,7 +548,7 @@ module.exports = function(config = {}) {
     module.MWstats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -561,7 +561,7 @@ module.exports = function(config = {}) {
     module.MWwzstats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
-            if (platform === "battle" || platform === "uno") gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "battle" || platform === "uno" || platform === "acti") gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
