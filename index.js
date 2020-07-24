@@ -205,25 +205,9 @@ module.exports = function(config = {}) {
         });
     };
 
-
-
-    module.IwWeekly = function(gamertag, platform = config.platform) {
-        return new Promise((resolve, reject) => {
-            let urlInput = _helpers.buildUri(`crm/cod/v2/title/iw/platform/${platform}/gamer/${gamertag}/summary/`);
-            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
-        });
-    };
-
     module.IWStats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             let urlInput = _helpers.buildUri(`crm/cod/v2/title/iw/platform/${platform}/gamer/${gamertag}/profile/`);
-            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
-        });
-    };
-
-    module.WWIIWeekly = function(gamertag, platform = config.platform) {
-        return new Promise((resolve, reject) => {
-            let urlInput = _helpers.buildUri(`crm/cod/v2/title/wwii/platform/${platform}/gamer/${gamertag}/summary/`);
             _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };

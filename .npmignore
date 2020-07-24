@@ -2,3 +2,5 @@ CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 node_modules/
 .github/
+test.js
+examples/
