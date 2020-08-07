@@ -2,31 +2,17 @@
 [![https://www.github.com/sponsors/lierrmm](https://img.shields.io/badge/github-donate-teal.svg)](https://www.github.com/sponsors/lierrmm)
 [![https://www.paypal.me/liammm](https://img.shields.io/badge/paypal-donate-blue.svg)](https://www.paypal.me/liammm)
 
-# MAJOR CHANGES
+![https://npmjs.org/package/call-of-duty-api](img/logo.png)
 
-You will now have to login to the API before making any requests. This means you will need a call of duty account.
-Simply call:
-```javascript
- const API = require('call-of-duty-api')();
- API.login("<email>", "<password>").then(<?>).catch(<?>);
-```
-Reasons for this is to bypass a rate limitting issue.
+# Call Of Duty API Wrapper
 
-I have also implemented axios-rate-limit incase you want to implement your own rate limitting.
-All you need to do is pass a ratelimit object when initializing the module.
+Call of Duty Api is a promised based wrapper for the "private" API that Activision use on the callofduty.com website.
 
-```javascript
-    const API = require('call-of-duty-api')( { platform: 'battle', ratelimit: { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 } } );
-```
-You can find out more about axios-rate-limit [here](https://www.npmjs.com/package/axios-rate-limit)
+This wrapper is written in NodeJS and is publicly available on [npm](https://npmjs.org/package/call-of-duty-api).
 
 # Discord
 
 Join the discord: [here](https://discord.gg/NuUpvzC)
-
-# Call Of Duty API Wrapper
-
-Call of Duty Api is a wrapper for the "private" API that Activision use on the callofduty.com website.
 
 ## Install
 ```sh
@@ -48,8 +34,9 @@ const API = require('call-of-duty-api')({ platform: "battle" });
 -   xbl
 -   battle
 -   uno (activision ID)
+
 ```javascript
-//How to use
+//How to access
 API.platforms.psn
 ```
 Please note:
@@ -60,6 +47,23 @@ Please note:
 -   MWmp
 -   MWwz
 -   MWstats
+
+## Login
+ - This needs to be your activision account, not your platform login.
+```javascript
+ const API = require('call-of-duty-api')();
+ API.login("<email>", "<password>").then(<?>).catch(<?>);
+```
+## Rate limiting
+
+I have implemented axios-rate-limit incase you want to implement your own rate limitting.
+All you need to do is pass a ratelimit object when initializing the module.
+
+```javascript
+    const API = require('call-of-duty-api')( { platform: 'battle', ratelimit: { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 } } );
+```
+You can find out more about axios-rate-limit [here](https://www.npmjs.com/package/axios-rate-limit)
+
 
 ## Get Stats
 ```javascript
