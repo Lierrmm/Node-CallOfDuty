@@ -587,6 +587,22 @@ module.exports = function(config = {}) {
         });
     };
 
+    module.MWFullMatchInfomp = function(matchId, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/fullMatch/mp/${matchId}/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.MWFullMatchInfowz = function(matchId, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/fullMatch/wz/${matchId}/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.friendFeed = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             gamertag = _helpers.cleanClientName(gamertag);
@@ -707,6 +723,14 @@ module.exports = function(config = {}) {
         return new Promise((resolve, reject) => {
             gamertag = _helpers.cleanClientName(gamertag);
             let urlInput = _helpers.buildUri(`crm/cod/v2/friends/platform/${platform}/gamer/${gamertag}/presence/1/${ssoCookie}`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.Settings = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            gamertag = _helpers.cleanClientName(gamertag);
+            let urlInput = _helpers.buildUri(`preferences/v1/platform/${platform}/gamer/${gamertag}/list`);
             _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
