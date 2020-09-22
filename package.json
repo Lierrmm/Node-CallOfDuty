@@ -1,11 +1,8 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
-  "scripts": {
-    "postinstall": "capilog"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lierrmm/Node-CallOfDuty.git"
@@ -33,7 +30,6 @@
   "dependencies": {
     "axios": "^0.20.0",
     "axios-rate-limit": "^1.2.1",
-    "capi-insights": "^1.0.1",
     "uniqid": "^5.2.0"
   }
 }
