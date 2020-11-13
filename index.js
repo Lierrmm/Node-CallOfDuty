@@ -603,6 +603,79 @@ module.exports = function(config = {}) {
         });
     };
 
+    //CW
+    module.CWmp = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`stats/cod/v1/title/cw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
+    module.CWloot = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`loot/title/cw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
+    module.CWAnalysis = function(gamertag, platform = config.platform) {  //could be v1
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`ce/v2/title/cw/platform/${platform}/gametype/all/gamer/${gamertag}/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
+    module.CWMapList = function(platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`ce/v1/title/cw/platform/${platform}/gameType/mp/communityMapData/availability`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.CWcombatmp = function(gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.CWcombatdate = function(gamertag, start = 0, end = 0, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${start}/end/${end}/details`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+    
+    module.CWFullMatchInfo = function(matchId, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/cw/platform/${platform}/fullMatch/mp/${matchId}/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.friendFeed = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             gamertag = _helpers.cleanClientName(gamertag);

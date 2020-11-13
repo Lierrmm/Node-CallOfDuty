@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "1.2.16",
+  "version": "1.3.0",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "repository": {
@@ -15,7 +15,10 @@
     "modern warfare",
     "black ops",
     "iw",
-    "battle royale"
+    "battle royale",
+    "Cold War",
+    "cw",
+    "3arc"
   ],
   "author": "Liam Gaskell",
   "license": "ISC",
