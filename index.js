@@ -722,6 +722,7 @@ module.exports = function(config = {}) {
             if (platform === "uno") lookupType = "id";
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`loot/title/mw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+            console.log(urlInput);
             _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
         });
     };
