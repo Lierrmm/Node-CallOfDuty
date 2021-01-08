@@ -618,7 +618,7 @@ module.exports = function(config = {}) {
     
     module.CWloot = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
-            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
             gamertag = _helpers.cleanClientName(gamertag);
             let lookupType = "gamer";
             if (platform === "uno") lookupType = "id";
@@ -630,7 +630,7 @@ module.exports = function(config = {}) {
     
     module.CWAnalysis = function(gamertag, platform = config.platform) {  //could be v1
         return new Promise((resolve, reject) => {
-            if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
             gamertag = _helpers.cleanClientName(gamertag);
             if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
             let urlInput = _helpers.buildUri(`ce/v2/title/cw/platform/${platform}/gametype/all/gamer/${gamertag}/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en`);
