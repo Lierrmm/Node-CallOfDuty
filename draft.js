@@ -68,7 +68,7 @@ class helpers {
                 if (response.data.status !== undefined && response.data.status === 'success') {
                     resolve(response.data.data);
                 } else {
-                    reject(this.apiErrorHandling(response));
+                    reject(this.apiErrorHandling({response: response}));
                 }
             }).catch((error) => {
                 reject(this.apiErrorHandling(error));
@@ -89,7 +89,7 @@ class helpers {
                 if (response.data.status !== undefined && response.data.status === 'success') {
                     resolve(response.data.data);
                 } else {
-                    reject(this.apiErrorHandling(response));
+                    reject(this.apiErrorHandling({response: response}));
                 }
             }).catch((error) => {
                 reject(this.apiErrorHandling(error));
