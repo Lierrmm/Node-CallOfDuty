@@ -68,10 +68,10 @@ class helpers {
                 if (response.data.status !== undefined && response.data.status === 'success') {
                     resolve(response.data.data);
                 } else {
-                    reject(this.apiErrorHandling(response));
+                    reject(this.apiErrorHandling({response: response}));
                 }
             }).catch((error) => {
-                reject(this.apiErrorHandling(error.response));
+                reject(this.apiErrorHandling(error));
             });
         });
     }
@@ -89,10 +89,10 @@ class helpers {
                 if (response.data.status !== undefined && response.data.status === 'success') {
                     resolve(response.data.data);
                 } else {
-                    reject(this.apiErrorHandling(response));
+                    reject(this.apiErrorHandling({response: response}));
                 }
             }).catch((error) => {
-                reject(this.apiErrorHandling(error.response));
+                reject(this.apiErrorHandling(error));
             });
         });
     }
@@ -102,36 +102,45 @@ class helpers {
             loginAxios.post(url, data, headers).then(response => {
                 resolve(response.data);
             }).catch((error) => {
-                reject(this.apiErrorHandling(error.response));
+                reject(this.apiErrorHandling(error));
             });
         });
     }
 
-    apiErrorHandling(response) {
-        switch (response.status) {
-            case 200:
-                const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined) ? response.message : 'No error returned from API.';
-                switch (apiErrorMessage) {
-                    case 'Not permitted: user not found':
-                        return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
-                    case 'Not permitted: rate limit exceeded':
-                        return '429 - Too many requests. Try again in a few minutes.';
-                    case 'Error from datastore':
+    apiErrorHandling(error) {
+        if (!!error) {
+            let response = error.response;
+            if (!!response) {
+                switch (response.status) {
+                    case 200:
+                        const apiErrorMessage = (response.data !== undefined && response.data.data !== undefined && response.data.data.message !== undefined) ? response.data.data.message : (response.message !== undefined) ? response.message : 'No error returned from API.';
+                        switch (apiErrorMessage) {
+                            case 'Not permitted: user not found':
+                                return '404 - Not found. Incorrect username or platform? Misconfigured privacy settings?';
+                            case 'Not permitted: rate limit exceeded':
+                                return '429 - Too many requests. Try again in a few minutes.';
+                            case 'Error from datastore':
+                                return '500 - Internal server error. Request failed, try again.';
+                            default:
+                                return apiErrorMessage;
+                        }
+                        break;
+                    case 401:
+                        return '401 - Unauthorized. Incorrect username or password.';
+                    case 403:
+                        return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
+                    case 500:
                         return '500 - Internal server error. Request failed, try again.';
+                    case 502:
+                        return '502 - Bad gateway. Request failed, try again.';
                     default:
-                        return apiErrorMessage;
+                        return `We Could not get a valid reason for a failure. Status: ${response.status}`;
                 }
-                break;
-            case 401:
-                return '401 - Unauthorized. Incorrect username or password.';
-            case 403:
-                return '403 - Forbidden. You may have been IP banned. Try again in a few minutes.';
-            case 500:
-                return '500 - Internal server error. Request failed, try again.';
-            case 502:
-                return '502 - Bad gateway. Request failed, try again.';
-            default:
-                return `We Could not get a valid reason for a failure. Status: ${response.status}`;
+            } else {
+                return `We Could not get a valid reason for a failure. Status: ${error}`;
+            }
+        } else {
+            return `We Could not get a valid reason for a failure.`;
         }
     }
 }
