@@ -167,7 +167,7 @@ module.exports = function(config = {}) {
     try {
         if (typeof config.ratelimit === "object") apiAxios = rateLimit(apiAxios, config.ratelimit);
     } catch (Err) {
-        console.log("Could not parse ratelimit object. ignoring.");
+        console.warn("Could not parse ratelimit object. ignoring.");
     }
 
     _helpers = new helpers();
@@ -179,7 +179,6 @@ module.exports = function(config = {}) {
         xbl: "xbl",
         acti: "acti",
         uno: "uno",
-        unoid: "uno",
         all: "all"
     };
 
