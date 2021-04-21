@@ -16,4 +16,4 @@ This wrapper is written in NodeJS and is publicly available on [npm](https://npm
 Join the discord: [here](https://discord.gg/NuUpvzC)
 
 # Documentation
-You can find documentation [here](https://lierrmm.github.io/capi-docs/).
+You can find documentation [here](https://lierrmm.gitbook.io/call-of-duty-api/).
