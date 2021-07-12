@@ -649,6 +649,22 @@ module.exports = function(config = {}) {
         });
     };
 
+    //https://my.callofduty.com/api/papi-client/inventory/v1/title/cw/platform/psn/purchasable/public/en
+    module.GetPurchasablePublic = function() {
+        return new Promise((resolve, reject) => {
+            let urlInput = _helpers.buildUri(`inventory/v1/title/cw/platform/psn/purchasable/public/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    //https://my.callofduty.com/api/papi-client/inventory/v1/title/cw/bundle/22497100/en
+    module.getBundleInformation = function(title, bundleId) {
+        return new Promise((resolve, reject) => {
+            let urlInput = _helpers.buildUri(`inventory/v1/title/${title}/bundle/${bundleId}/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     module.friendFeed = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
             gamertag = _helpers.cleanClientName(gamertag);
