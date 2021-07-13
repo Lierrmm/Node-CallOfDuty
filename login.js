@@ -164,41 +164,34 @@ module.exports.login = (username, password) => {
 
     return new Promise(async(resolve, reject) => {
 
-        let data = new URLSearchParams({ email: username });
-
+        let data = new URLSearchParams({ email: encodeURIComponent(username) });
         console.log(data);
 
+        let response = await loginAxios.get('https://profile.callofduty.com/cod/script/siteConfig/loc_en_US');
 
-        let response = await loginAxios.get('https://profile.callofduty.com/cod/login?redirectUrl=https%3A%2F%2Fwww.callofduty.com%2Fuk%2Fen%2F');
-        let xsrfParse = response.headers["set-cookie"].join(';').split(';')
-                .filter(i => i.includes("="))
-                .filter(s => s.startsWith("XSRF-TOKEN="));
 
-        console.log(xsrfParse[0]);
+        let response2 = await loginAxios.get(
+            "https://profile.callofduty.com/cod/login?redirectUrl=https%3A%2F%2Fwww.callofduty.com%2Fuk%2Fen%2F"
+          );
+        
+        let tagStart = /<meta name="_csrf" content="(.*)+"\/>/gm;
 
+        let execs = tagStart.exec(response2.data);
+        let csrf = execs[1];
         let tempCookies = response.headers["set-cookie"];
-
         loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
         loginAxios.post(`https://profile.callofduty.com/cod/checkEmailFormat`, data).then((response) =>{
             let cookies = response.headers['set-cookie'];
-            let xsrf = cookies.join(';').split(';')
-            .filter(i => i.includes("="))
-            .filter(s => s.startsWith("XSRF-TOKEN="));
-            cookies = cookies.filter(x => !x.startsWith(xsrf[0]));
-            loginAxios.defaults.headers.common["Cookie"] = `${baseCookie}${tempCookies.join(';')};${cookies.join(';')};`;
-            loginAxios.defaults.headers.common["Origin"] = "https://profile.callofduty.com";
-            loginAxios.defaults.headers.common["host"] = "profile.callofduty.com";
-            loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-            loginAxios.defaults.headers.common["Sec-Fetch-Site"] = "same-origin";
-            loginAxios.defaults.headers.common["Referer"] = "https://profile.callofduty.com/cod/login?redirectUrl=https%3A%2F%2Fwww.callofduty.com%2Fuk%2Fen%2F";
-            loginAxios.defaults.headers.common["Connection"] = "keep-alive";
-            data = new URLSearchParams({ username: username, password: password, remember_me: true, _csrf: xsrfParse[0].split("=")[1] });
+            loginAxios.defaults.headers.common["Cookie"] = `${baseCookie}${tempCookies.join(';')};`;
+            data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: csrf });
+            data = decodeURIComponent(data);
             console.log(data);
             // ISSUE WITH XSRF TOKEN IN COOKIES AND _csrf. Replacing with browser values works so need to find where they are coming from.
-            loginAxios.post('https://profile.callofduty.com/do_login', data, { maxRedirects: 0 }).then((response) => {
-                console.log(response.data);
+            loginAxios.post('https://profile.callofduty.com/do_login', data).then((response) => {
+                console.log(response.headers);
+                apiAxios.defaults.headers.common.Cookie = `${baseCookie}${response.headers["set-cookie"].join(';')}`;
                 console.log("done");
-            }).catch(e=>console.log(e.response));  
+            }).catch(e=>console.log(e.response.data));  
         }).catch(console.log);
     });
 
