@@ -4,7 +4,7 @@ const rateLimit = require('axios-rate-limit');
 const crypto = require('crypto');
 
 const userAgent = "a4b471be-4ad2-47e2-ba0e-e1f2aa04bff9";
-let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
+let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;ACT_SSO_COOKIE=444444444;ACT_SSO_REMEMBER_ME=12322334432;";
 let ssoCookie;
 let loggedIn = false;
 let debug = 0;
@@ -161,35 +161,48 @@ module.exports.login = (username, password) => {
         return response;
     });
 
+    const cookieHelper = require('cookie');
+    
 
     return new Promise(async(resolve, reject) => {
-
-        let data = new URLSearchParams({ email: encodeURIComponent(username) });
+        let data = new URLSearchParams({ email: username });
         console.log(data);
+        let response = await loginAxios.get('https://profile.callofduty.com/cod/script/siteDictionary/loc_en_US.json').catch(console.log)
+        let neededCookies = response.headers["set-cookie"].join(";");
+        let CookieObj = cookieHelper.parse(neededCookies);
+        console.log(CookieObj);
 
-        let response = await loginAxios.get('https://profile.callofduty.com/cod/script/siteConfig/loc_en_US');
+        response2 = await axios.get('https://profile.callofduty.com/cod/login').catch(e => console.log(e.data))
+        neededCookies2 = response2.headers["set-cookie"].join(";");
+        let CookieObj2 = cookieHelper.parse(neededCookies2);
+        //console.log(CookieObj2);
 
+        //https://profile.callofduty.com/akam/11/49d86355
+        response2 = await axios.get('https://profile.callofduty.com/akam/11/49d86355').catch(e => console.log(e.data))
+        neededCookies3 = response2.headers["set-cookie"].join(";");
+        let CookieObj3 = cookieHelper.parse(neededCookies3);
+        //console.log(CookieObj3);
 
-        let response2 = await loginAxios.get(
-            "https://profile.callofduty.com/cod/login?redirectUrl=https%3A%2F%2Fwww.callofduty.com%2Fuk%2Fen%2F"
-          );
-        
-        let tagStart = /<meta name="_csrf" content="(.*)+"\/>/gm;
-
-        let execs = tagStart.exec(response2.data);
-        let csrf = execs[1];
-        let tempCookies = response.headers["set-cookie"];
+        let baseCookie2 = `AMCVS_0FB367C2524450B90A490D4C@AdobeOrg=1; _gcl_au=1.1.422828117.1626245767; gtm.custom.bot.flag=human;AMCV_0FB367C2524450B90A490D4C@AdobeOrg=-637568504|MCIDTS|18823|MCMID|00158842383788701031764955417294559117|MCAAMLH-1626850566|6|MCAAMB-1626850566|6G1ynYcLPuiQxYZrsz_pkqfLG9yMXBpb2zX5dvJdYQJzPXImdj0y|MCOPTOUT-1626252970s|NONE|MCAID|NONE|MCSYNCSOP|411-18830|vVersion|5.1.1;ACT_SSO_LOCALE=en_US; s_cc=true; _fbp=fb.1.1626245772596.1417353536; _gid=GA1.2.1464048312.1626245773;_scid=3c7c48f8-633a-4b39-846d-109869348018;_ga_ZN5RJYMCDQ=GS1.1.1626245770.1.1.1626245864.0; _ga=GA1.2.1740492336.1626245773;OptanonConsent=consentId=a6ae4e2d-59b7-47bc-81b1-c15e88c576fe&datestamp=Wed Jul 14 2021 07:57:44 GMT 0100 (BritishSummerTime)&version=6.13.0&interactionCount=1&isIABGlobal=false&hosts=&landingPath=https://profile.callofduty.com/cod/login&groups=1:1,2:1,3:1,4:1;gpv_pn=callofduty:sso-callofduty:login; s_tp=1221; s_ppv=callofduty:sso-callofduty:login,77,77,942;s_nr=1626246235269-New;s_sq=activision.prd=&c.&a.&activitymap.&page=callofduty%3Asso-callofduty%3Alogin&link=SIGN%20IN&region=login-info&pageIDType=1&.activitymap&.a&.c&pid=callofduty%3Asso-callofduty%3Alogin&pidt=1&oid=SIGN%20IN&oidt=3&ot=SUBMIT`;
+        let builtCookie = `gtm.custom.bot.flag=human;ak_bmsc=${CookieObj3["ak_bmsc"]};comid=${CookieObj["comid"]};_abck=${CookieObj["_abck"]};`
+        console.log(builtCookie);
+        loginAxios.defaults.headers.common["Cookie"] = `${builtCookie};`;
         loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-        loginAxios.post(`https://profile.callofduty.com/cod/checkEmailFormat`, data).then((response) =>{
-            let cookies = response.headers['set-cookie'];
-            loginAxios.defaults.headers.common["Cookie"] = `${baseCookie}${tempCookies.join(';')};`;
-            data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: csrf });
+        loginAxios.post(`https://profile.callofduty.com/cod/checkEmailFormat`, data, { headers: { "X-Xsrf-Token": CookieObj2["XSRF-TOKEN"], Origin: "https://profile.callofduty.com"    }}).then((response) => {
+            let neededCookies = response.headers["set-cookie"].join(";");
+            let CookieObj4 = cookieHelper.parse(neededCookies);
+            console.log(CookieObj4);
+            console.log(response.data);
+            builtCookie += `XSRF-TOKEN=${CookieObj4["XSRF-TOKEN"]};ACT_SSO_LOCALE=en_US;bm_sz=${CookieObj4["bm_sz"]};`;
+            console.log(builtCookie);
+            loginAxios.defaults.headers.common["Cookie"] = `${builtCookie};`;
+            data = new URLSearchParams({ username: username, password, remember_me: true, _csrf: CookieObj4["XSRF-TOKEN"] });
             data = decodeURIComponent(data);
             console.log(data);
             // ISSUE WITH XSRF TOKEN IN COOKIES AND _csrf. Replacing with browser values works so need to find where they are coming from.
             loginAxios.post('https://profile.callofduty.com/do_login', data).then((response) => {
                 console.log(response.headers);
-                apiAxios.defaults.headers.common.Cookie = `${baseCookie}${response.headers["set-cookie"].join(';')}`;
+                apiAxios.defaults.headers.common.Cookie = `${neededCookies};`;
                 console.log("done");
             }).catch(e=>console.log(e.response.data));  
         }).catch(console.log);
