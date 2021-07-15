@@ -11,26 +11,24 @@ let ssoCookie;
 let loggedIn = false;
 let debug = 0;
 
-// let apiAxios = axios.create({
-//     headers: {
-//         common: {
-//             "content-type": "application/json",
-//             "cookie": baseCookie,
-//             "userAgent": userAgent,
-//             "x-requested-with": userAgent,
-//             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-//             "Connection": "keep-alive"
-//         },
-//     },
-//     withCredentials: true
-// });
+let apiAxios = axios.create({
+    headers: {
+        common: {
+            "content-type": "application/json",
+            "cookie": baseCookie,
+            "userAgent": userAgent,
+            "x-requested-with": userAgent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Connection": "keep-alive"
+        },
+    },
+    withCredentials: true
+});
 
-// axiosCookieJarSupport(apiAxios);
-// apiAxios.defaults.jar = new tough.CookieJar();
+axiosCookieJarSupport(apiAxios);
+apiAxios.defaults.jar = new tough.CookieJar();
 
-axiosCookieJarSupport(axios);
-const cookieJar = new tough.CookieJar();
-
+let loginAxios = apiAxios;
 
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
 let loginURL = "https://profile.callofduty.com/cod/mapp/";
@@ -186,18 +184,20 @@ module.exports.login = (username, password) => {
                 cookies[c.key] = c.value;
             });
 
-            var cookie = `${!!cookies ? Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';') : ''};`;
-            console.log(cookie, cookies["XSRF-TOKEN"]);
-    
-            axios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-            let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
-            data = decodeURIComponent(data);
-            axios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': cookie }}).then((response) => {
-                console.log(response.data);
-                loggedIn = true;
-                resolve("done");
-            }).catch(console.log);
-        });        
+        //console.log('login: cookies', cookies);
+        
+        loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
+        let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
+        data = decodeURIComponent(data);
+        //loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` }}).then((response) => {
+          loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
+            //console.log('login: response', response);
+            //apiAxios.defaults.headers.common["cookie"] = `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
+            apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`//${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
+            //console.log('login: cookie', apiAxios.defaults.headers.common["cookie"]);
+            loggedIn = true;
+            resolve("done");
+        }).catch(reject); 
     });
 };
 
@@ -216,7 +216,10 @@ module.exports.CWmp = function(gamertag, platform) {
 
 module.exports.MWcombatwz = function(gamertag, platform) {
   return new Promise((resolve, reject) => {
-      if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+      if (platform === "steam") {
+        reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        return;
+      }
       gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
       if (platform === "uno") lookupType = "id";
       if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -229,7 +232,7 @@ module.exports.MWcombatwz = function(gamertag, platform) {
 module.exports.test = async (email, password, username, platform) => {
   try {
     const loginResult = await this.login(email, password);
-    //console.log('loginResult', loginResult);
+    console.log('loginResult', loginResult);
     const stats = await this.MWcombatwz(username, platform);
     console.log('stats', stats);
   } catch (error) {
