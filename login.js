@@ -50,7 +50,7 @@ class helpers {
     sendRequestUserInfoOnly(url) {
         return new Promise((resolve, reject) => {
             if (!loggedIn) reject("Not Logged In.");
-            axios.get(url, { jar: cookieJar, withCredentials: true }).then(body => {
+            apiAxios.get(url).then(body => {
                 if (body.status == 403) reject("Forbidden. You may be IP banned.");
                 if (debug === 1) {
                     console.log(`[DEBUG]`, `Build URI: ${url}`);
@@ -66,7 +66,7 @@ class helpers {
     sendRequest(url) {
         return new Promise((resolve, reject) => {
             if (!loggedIn) reject("Not Logged In.");
-            axios.get(url, { jar: cookieJar, withCredentials: true }).then(response => {
+            apiAxios.get(url).then(response => {
                 if (debug === 1) {
                     console.log(`[DEBUG]`, `Build URI: ${url}`);
                     console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
@@ -88,7 +88,7 @@ class helpers {
     sendPostRequest(url, data) {
         return new Promise((resolve, reject) => {
             if (!loggedIn) reject("Not Logged In.");
-            axios.post(url, JSON.stringify(data), { jar: cookieJar, withCredentials: true }).then(response => {
+            apiAxios.post(url, JSON.stringify(data)).then(response => {
                 if (debug === 1) {
                     console.log(`[DEBUG]`, `Build URI: ${url}`);
                     console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
@@ -109,7 +109,7 @@ class helpers {
 
     postReq(url, data, headers = null) {
         return new Promise((resolve, reject) => {
-            axios.post(url, data, headers).then(response => {
+            apiAxios.post(url, data, headers).then(response => {
                 resolve(response.data);
             }).catch((error) => {
                 reject(this.apiErrorHandling(error));
@@ -159,11 +159,11 @@ module.exports.login = (username, password) => {
 
     _helpers = new helpers();
 
-    axios.interceptors.request.use((resp) => {
+    apiAxios.interceptors.request.use((resp) => {
         resp.headers['request-startTime'] = process.hrtime();
         return resp;
     });
-    axios.interceptors.response.use((response) => {
+    apiAxios.interceptors.response.use((response) => {
         const start = response.config.headers['request-startTime'];
         const end = process.hrtime(start);
         const milliseconds = Math.round((end[0] * 1000) + (end[1] / 1000000));
@@ -171,37 +171,45 @@ module.exports.login = (username, password) => {
         return response;
     });
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const cookies = {};
-        axios.get("https://profile.callofduty.com/cod/login", { jar: cookieJar, withCredentials: true}).then((response) => {
-
-            console.log(cookieJar);
+        apiAxios.get("https://profile.callofduty.com/cod/login").then((response) => {
 
             const config = response.config;
             console.log(config.jar.toJSON().cookies);
-            
+
             config.jar.toJSON().cookies.forEach((c) => {
                 cookies[c.key] = c.value;
             });
 
-        //console.log('login: cookies', cookies);
-        
-        loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-        let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
-        data = decodeURIComponent(data);
-        //loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` }}).then((response) => {
-          loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
-            //console.log('login: response', response);
-            //apiAxios.defaults.headers.common["cookie"] = `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
-            apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`//${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
-            //console.log('login: cookie', apiAxios.defaults.headers.common["cookie"]);
-            loggedIn = true;
-            resolve("done");
-        }).catch(reject); 
-    });
-};
+            //console.log('login: cookies', cookies);
 
-module.exports.CWmp = function(gamertag, platform) {
+            // apiAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
+            let data = new URLSearchParams({
+                username: encodeURIComponent(username),
+                password,
+                remember_me: true,
+                _csrf: cookies["XSRF-TOKEN"]
+            });
+            data = decodeURIComponent(data);
+            //loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` }}).then((response) => {
+            apiAxios.post('https://profile.callofduty.com/do_login', data, {
+                headers: {
+                    'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}`
+                }
+            }).then((response) => {
+                console.log('login: response', response);
+                //apiAxios.defaults.headers.common["cookie"] = `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
+                apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` //${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
+                //console.log('login: cookie', apiAxios.defaults.headers.common["cookie"]);
+                loggedIn = true;
+                resolve("done");
+            }).catch(reject);
+        });
+    });
+}
+
+module.exports.CWmp = function (gamertag, platform) {
     return new Promise((resolve, reject) => {
         _helpers = new helpers();
         if (platform === "steam") reject("Steam Doesn't exist for CW. Try `battle` instead.");
@@ -214,28 +222,33 @@ module.exports.CWmp = function(gamertag, platform) {
     });
 };
 
-module.exports.MWcombatwz = function(gamertag, platform) {
-  return new Promise((resolve, reject) => {
-      if (platform === "steam") {
-        reject("Steam Doesn't exist for MW. Try `battle` instead.");
-        return;
-      }
-      gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
-      if (platform === "uno") lookupType = "id";
-      if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
-      let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0/details`);
-      //console.log('MWcombatwz: axios defaults', apiAxios.defaults);
-      _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
-  });
+module.exports.MWcombatwz = function (gamertag, platform) {
+    return new Promise((resolve, reject) => {
+        if (platform === "steam") {
+            reject("Steam Doesn't exist for MW. Try `battle` instead.");
+            return;
+        }
+        gamertag = _helpers.cleanClientName(gamertag);
+        let lookupType = "gamer";
+        if (platform === "uno") lookupType = "id";
+        if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+        let urlInput = _helpers.buildUri(`crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0/details`);
+        //console.log('MWcombatwz: axios defaults', apiAxios.defaults);
+        _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+    });
 };
 
 module.exports.test = async (email, password, username, platform) => {
-  try {
-    const loginResult = await this.login(email, password);
-    console.log('loginResult', loginResult);
-    const stats = await this.MWcombatwz(username, platform);
-    console.log('stats', stats);
-  } catch (error) {
-    console.log('error', { error, stack: error.stack, serialized: JSON.stringify(error) });
-  }
+    try {
+        const loginResult = await this.login(email, password);
+        console.log('loginResult', loginResult);
+        const stats = await this.MWcombatwz(username, platform);
+        console.log('stats', stats);
+    } catch (error) {
+        console.log('error', {
+            error,
+            stack: error.stack,
+            serialized: JSON.stringify(error)
+        });
+    }
 }
