@@ -1,9 +1,7 @@
 const axios = require('axios');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
-const uniqid = require('uniqid');
-const rateLimit = require('axios-rate-limit');
-const crypto = require('crypto');
+const puppeteer = require('puppeteer');
 
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
@@ -171,41 +169,29 @@ module.exports.login = (username, password) => {
         return response;
     });
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         const cookies = {};
-        apiAxios.get("https://profile.callofduty.com/cod/login").then((response) => {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
 
-            const config = response.config;
-            console.log(config.jar.toJSON().cookies);
+        await page.goto("https://profile.callofduty.com/cod/login");
 
-            config.jar.toJSON().cookies.forEach((c) => {
-                cookies[c.key] = c.value;
-            });
+        await new Promise(e => setTimeout(e, 500));
 
-            //console.log('login: cookies', cookies);
+        const allCookies = await page._client.send('Network.getAllCookies');
 
-            // apiAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-            let data = new URLSearchParams({
-                username: encodeURIComponent(username),
-                password,
-                remember_me: true,
-                _csrf: cookies["XSRF-TOKEN"]
-            });
-            data = decodeURIComponent(data);
-            //loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` }}).then((response) => {
-            apiAxios.post('https://profile.callofduty.com/do_login', data, {
-                headers: {
-                    'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}`
-                }
-            }).then((response) => {
-                console.log('login: response', response);
-                //apiAxios.defaults.headers.common["cookie"] = `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
-                apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` //${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
-                //console.log('login: cookie', apiAxios.defaults.headers.common["cookie"]);
-                loggedIn = true;
-                resolve("done");
-            }).catch(reject);
+        allCookies.cookies.forEach((c) => {
+            cookies[c.name] = c.value;
         });
+
+        loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
+        let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
+        data = decodeURIComponent(data);
+          loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
+            apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`;
+            loggedIn = true;
+            resolve("done");
+        }).catch(reject);
     });
 }
 

@@ -1,6 +1,7 @@
 const axios = require('axios');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
+const puppeteer = require('puppeteer');
 const rateLimit = require('axios-rate-limit');
 
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
@@ -197,10 +198,7 @@ module.exports = function(config = {}) {
           const milliseconds = Math.round((end[0] * 1000) + (end[1] / 1000000));
           response.headers['request-duration'] = milliseconds;
           return response;
-      });
-
-      const puppeteer = require('puppeteer');
-      
+      });    
 
       return new Promise(async(resolve, reject) => {
           const cookies = {};
@@ -209,7 +207,7 @@ module.exports = function(config = {}) {
 
           await page.goto("https://profile.callofduty.com/cod/login");
 
-          await new Promise(resolve => setTimeout(resolve, 5000));
+          await new Promise(w => setTimeout(w, 500));
 
           const allCookies = await page._client.send('Network.getAllCookies');
 
