@@ -1,13 +1,11 @@
 const axios = require('axios');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
-const uniqid = require('uniqid');
 const rateLimit = require('axios-rate-limit');
-const crypto = require('crypto');
 
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
-let ssoCookie;
+let ssoCookie;  // TODO: Not sure where to get this from now
 let loggedIn = false;
 let debug = 0;
 
@@ -30,7 +28,6 @@ apiAxios.defaults.jar = new tough.CookieJar();
 
 let loginAxios = apiAxios;
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
-let loginURL = "https://profile.callofduty.com/cod/mapp/";
 let defaultProfileURL = "https://profile.callofduty.com/";
 
 class helpers {
@@ -223,7 +220,7 @@ module.exports = function(config = {}) {
           loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
           let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
           data = decodeURIComponent(data);
-            loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${!!cookies ? Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';') : ''}` }}).then((response) => {
+            loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
               apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`;
               loggedIn = true;
               resolve("done");

@@ -194,7 +194,7 @@ module.exports.login = (username, password) => {
         let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
         data = decodeURIComponent(data);
         //loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;` }}).then((response) => {
-          loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${!!cookies ? Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';') : ''}` }}).then((response) => {
+          loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
             //console.log('login: response', response);
             //apiAxios.defaults.headers.common["cookie"] = `_abck=${cookies["_abck"]};XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
             apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`//${response.headers["set-cookie"] ? response.headers["set-cookie"].join(';') : ''}`
@@ -221,7 +221,10 @@ module.exports.CWmp = function(gamertag, platform) {
 
 module.exports.MWcombatwz = function(gamertag, platform) {
   return new Promise((resolve, reject) => {
-      if (platform === "steam") reject("Steam Doesn't exist for MW. Try `battle` instead.");
+      if (platform === "steam") {
+        reject("Steam Doesn't exist for MW. Try `battle` instead.");
+        return;
+      }
       gamertag = _helpers.cleanClientName(gamertag);let lookupType = "gamer";
       if (platform === "uno") lookupType = "id";
       if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
@@ -234,7 +237,7 @@ module.exports.MWcombatwz = function(gamertag, platform) {
 module.exports.test = async (email, password, username, platform) => {
   try {
     const loginResult = await this.login(email, password);
-    //console.log('loginResult', loginResult);
+    console.log('loginResult', loginResult);
     const stats = await this.MWcombatwz(username, platform);
     console.log('stats', stats);
   } catch (error) {
