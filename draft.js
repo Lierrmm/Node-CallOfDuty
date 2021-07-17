@@ -1,11 +1,12 @@
 const axios = require('axios');
-const uniqid = require('uniqid');
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const tough = require('tough-cookie');
+const puppeteer = require('puppeteer');
 const rateLimit = require('axios-rate-limit');
-const crypto = require('crypto');
 
-const userAgent = "a4b471be-4ad2-47e2-ba0e-e1f2aa04bff9";
-let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;XSRF-TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;API_CSRF_TOKEN=68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041;";
-let ssoCookie;
+const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
+let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
+let ssoCookie;  // TODO: Not sure where to get this from now
 let loggedIn = false;
 let debug = 0;
 
@@ -13,18 +14,21 @@ let apiAxios = axios.create({
     headers: {
         common: {
             "content-type": "application/json",
-            "Cookie": baseCookie,
+            "cookie": baseCookie,
             "userAgent": userAgent,
             "x-requested-with": userAgent,
-            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Connection": "keep-alive"
         },
-    }
+    },
+    withCredentials: true
 });
+
+axiosCookieJarSupport(apiAxios);
+apiAxios.defaults.jar = new tough.CookieJar();
 
 let loginAxios = apiAxios;
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
-let loginURL = "https://profile.callofduty.com/cod/mapp/";
 let defaultProfileURL = "https://profile.callofduty.com/";
 
 class helpers {
@@ -182,36 +186,45 @@ module.exports = function(config = {}) {
         all: "all"
     };
 
-    module.login = function(email, password) {
-        return new Promise((resolve, reject) => {
-            let randomId = uniqid();
-            let md5sum = crypto.createHash('md5');
-            let deviceId = md5sum.update(randomId).digest('hex');
-            _helpers.postReq(`${loginURL}registerDevice`, {
-                'deviceId': deviceId
-            }).then((response) => {
-                let authHeader = response.data.authHeader;
-                apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
-                apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
-                _helpers.postReq(`${loginURL}login`, {
-                    "email": email,
-                    "password": password
-                }).then((data) => {
-                    if (!data.success) throw Error("401 - Unauthorized. Incorrect username or password.");
-                    ssoCookie = data.s_ACT_SSO_COOKIE;
-                    apiAxios.defaults.headers.common.Cookie = `${baseCookie}rtkn=${data.rtkn};ACT_SSO_COOKIE=${data.s_ACT_SSO_COOKIE};atkn=${data.atkn};`;
-                    loggedIn = true;
-                    resolve("200 - OK. Log in successful.");
-                }).catch((err) => {
-                    if (typeof err === "string") reject(err);
-                    reject(err.message);
-                });
-            }).catch((err) => {
-                if (typeof err === "string") reject(err);
-                reject(err.message);
-            });
-        });
-    };
+    module.login = function(username, password) {
+
+      loginAxios.interceptors.request.use((resp) => {
+          resp.headers['request-startTime'] = process.hrtime();
+          return resp;
+      });
+      loginAxios.interceptors.response.use((response) => {
+          const start = response.config.headers['request-startTime'];
+          const end = process.hrtime(start);
+          const milliseconds = Math.round((end[0] * 1000) + (end[1] / 1000000));
+          response.headers['request-duration'] = milliseconds;
+          return response;
+      });    
+
+      return new Promise(async(resolve, reject) => {
+          const cookies = {};
+          const browser = await puppeteer.launch();
+          const page = await browser.newPage();
+
+          await page.goto("https://profile.callofduty.com/cod/login");
+
+          await new Promise(w => setTimeout(w, 500));
+
+          const allCookies = await page._client.send('Network.getAllCookies');
+
+          allCookies.cookies.forEach((c) => {
+              cookies[c.name] = c.value;
+          });
+
+          loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
+          let data = new URLSearchParams({ username: encodeURIComponent(username), password, remember_me: true, _csrf: cookies["XSRF-TOKEN"] });
+          data = decodeURIComponent(data);
+            loginAxios.post('https://profile.callofduty.com/do_login', data, { headers: { 'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}` }}).then((response) => {
+              apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`;
+              loggedIn = true;
+              resolve("done");
+          }).catch(reject);
+      });
+    }
 
     module.BO4Stats = function(gamertag, platform = config.platform) {
         return new Promise((resolve, reject) => {
