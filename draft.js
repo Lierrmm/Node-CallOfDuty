@@ -1,12 +1,14 @@
 const axios = require('axios');
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const tough = require('tough-cookie');
-const puppeteer = require('puppeteer');
 const rateLimit = require('axios-rate-limit');
+const puppeteer = require('puppeteer-extra');
+const RecaptchaPlugin = require('puppeteer-extra-plugin-recaptcha');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const uniqid = require('uniqid');
+const crypto = require('crypto');
 
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
-let ssoCookie; // TODO: Not sure where to get this from now
+let ssoCookie;
 let loggedIn = false;
 let debug = 0;
 
@@ -23,9 +25,6 @@ let apiAxios = axios.create({
     },
     withCredentials: true
 });
-
-axiosCookieJarSupport(apiAxios);
-apiAxios.defaults.jar = new tough.CookieJar();
 
 let loginAxios = apiAxios;
 let defaultBaseURL = "https://my.callofduty.com/api/papi-client/";
@@ -115,6 +114,16 @@ class helpers {
         });
     }
 
+    makeid(length) {
+        var result           = '';
+        var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
     apiErrorHandling(error) {
         if (!!error) {
             let response = error.response;
@@ -190,44 +199,76 @@ module.exports = function (config = {}) {
         all: "all"
     };
 
-    module.login = function (username, password) {
+    module.login = function (username, password, captureKey) {
         return new Promise(async (resolve, reject) => {
 
-            const sharedCookieJar = new tough.CookieJar();
-            apiAxios.defaults.jar = sharedCookieJar;
-            loginAxios.defaults.jar = sharedCookieJar;
+            puppeteer.use(StealthPlugin());
+            puppeteer.use(
+                RecaptchaPlugin({
+                    provider: {
+                        id: '2captcha',
+                        token: captureKey
+                    },
+                    visualFeedback: true
+                })
+            );
 
-            const cookies = {};
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
+            puppeteer.launch({ headless: true }).then(async browser => {
+                const page = await browser.newPage()
+                await page.goto('https://profile.callofduty.com/cod/login')
+            
+                await page.type('#username', username, { delay: 100 });
+                await page.type('#password', password, { delay: 100 });
+            
+                await page.solveRecaptchas();
 
-            await page.goto("https://profile.callofduty.com/cod/login");
+                await Promise.all([
+                  page.waitForNavigation(),
+                  page.click('#login-button', { delay: 250 })
+                ]);
 
-            await new Promise(w => setTimeout(w, 500));
-
-            const allCookies = await page._client.send('Network.getAllCookies');
-
-            allCookies.cookies.forEach((c) => {
-                cookies[c.name] = c.value;
-            });
-
-            loginAxios.defaults.headers.common["content-type"] = "application/x-www-form-urlencoded";
-            let data = new URLSearchParams({
-                username: encodeURIComponent(username),
-                password,
-                remember_me: true,
-                _csrf: cookies["XSRF-TOKEN"]
-            });
-            data = decodeURIComponent(data);
-            loginAxios.post('https://profile.callofduty.com/do_login', data, {
-                headers: {
-                    'cookie': `${Object.keys(cookies).map(name => `${name}=${cookies[name]}`).join(';')}`
+                const cookies = await page.cookies();
+                const auth = {
+                  xsrf: cookies.find(c => c.name === 'XSRF-TOKEN')?.value,
+                  sso: cookies.find(c => c.name === 'ACT_SSO_COOKIE')?.value,
+                  atkn: cookies.find(c => c.name === 'atkn')?.value,
                 }
-            }).then(() => {
-                apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${cookies['XSRF-TOKEN']};bm_sz=${cookies["bm_sz"]};new_SiteId=cod;comid=cod;`;
+                await browser.close();
+
+                if (typeof auth.sso === "undefined" || typeof auth.atkn === "undefined") throw new Error("Failed to Login");
+                else {
+                    apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${auth.xsrf};ACT_SSO_COOKIE=${auth.sso};atkn=${auth.atkn};`;
+                    resolve("200 - successful login.");
+                    loggedIn = true;
+                }
+            }).catch((e) => reject(_helpers.apiErrorHandling(e)));
+        });
+    }
+
+    module.loginWithSSO = function (sso) {
+        return new Promise(async (resolve, reject) => {
+            if (typeof sso === "undefined" && sso.length <= 0) reject("SSO token is invalid.");
+            let loginURL = "https://profile.callofduty.com/cod/mapp/";
+            let randomId = uniqid();
+            let md5sum = crypto.createHash('md5');
+            let deviceId = md5sum.update(randomId).digest('hex');
+            _helpers.postReq(`${loginURL}registerDevice`, {
+                'deviceId': deviceId
+            }).then((response) => {
+                console.log(response);
+                let authHeader = response.data.authHeader;
+                apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
+                apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
+                let fakeXSRF = "68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041";
+                ssoCookie = `ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};`;
+                console.log(ssoCookie);
+                apiAxios.defaults.headers.common["cookie"] = baseCookie + ssoCookie;
                 loggedIn = true;
-                resolve("done");
-            }).catch(reject);
+                resolve("200 - Logged in with SSO.");
+            }).catch((err) => {
+                if (typeof err === "string") reject(err);
+                reject(err.message);
+            });
         });
     }
 
