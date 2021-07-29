@@ -247,7 +247,7 @@ module.exports = function (config = {}) {
 
     module.loginWithSSO = function (sso) {
         return new Promise(async (resolve, reject) => {
-            if (typeof sso === "undefined" && sso.length <= 0) reject("SSO token is invalid.");
+            if (typeof sso === "undefined" || sso.length <= 0) reject("SSO token is invalid.");
             let loginURL = "https://profile.callofduty.com/cod/mapp/";
             let randomId = uniqid();
             let md5sum = crypto.createHash('md5');
