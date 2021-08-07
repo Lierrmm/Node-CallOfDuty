@@ -199,7 +199,7 @@ module.exports = function (config = {}) {
         all: "all"
     };
 
-    module.login = function (username, password, captureKey) {
+    module.login = function (username, password, captureKey, headless = true) {
         return new Promise(async (resolve, reject) => {
 
             puppeteer.use(StealthPlugin());
@@ -213,8 +213,9 @@ module.exports = function (config = {}) {
                 })
             );
 
-            puppeteer.launch({ headless: true }).then(async browser => {
-                const page = await browser.newPage()
+            puppeteer.launch({ headless: headless, args: ['--no-sandbox'] }).then(async browser => {
+                const page = await browser.newPage();
+                await page.setDefaultNavigationTimeout(120000);
                 await page.goto('https://profile.callofduty.com/cod/login')
             
                 await page.type('#username', username, { delay: 100 });
