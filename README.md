@@ -14,5 +14,8 @@ This wrapper is written in NodeJS and is publicly available on [npm](https://npm
 
 Join the discord: [here](https://discord.gg/NuUpvzC)
 
+# Website
+https://codapi.dev
+
 # Documentation
-You can find documentation [here](https://lierrmm.gitbook.io/call-of-duty-api/).
+You can find documentation [here](https://docs.codapi.dev/).
