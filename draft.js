@@ -721,6 +721,81 @@ module.exports = function (config = {}) {
         });
     };
 
+    //vanguard
+    module.VGmp = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for VG. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`stats/cod/v1/title/vg/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGloot = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for VG. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`loot/title/vg/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGAnalysis = function (gamertag, platform = config.platform) { //could be v1
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for VG. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`ce/v2/title/vg/platform/${platform}/gametype/all/gamer/${gamertag}/summary/match_analysis/contentType/full/end/0/matchAnalysis/mobile/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGMapList = function (platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`ce/v1/title/vg/platform/${platform}/gameType/mp/communityMapData/availability`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGcombatmp = function (gamertag, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for VG. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGcombatdate = function (gamertag, start = 0, end = 0, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "steam") reject("Steam Doesn't exist for VG. Try `battle` instead.");
+            gamertag = _helpers.cleanClientName(gamertag);
+            let lookupType = "gamer";
+            if (platform === "uno") lookupType = "id";
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${start}/end/${end}/details`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
+    module.VGFullMatchInfo = function (matchId, platform = config.platform) {
+        return new Promise((resolve, reject) => {
+            if (platform === "uno" || platform === "acti") platform = this.platforms["uno"];
+            let urlInput = _helpers.buildUri(`crm/cod/v2/title/vg/platform/${platform}/fullMatch/mp/${matchId}/en`);
+            _helpers.sendRequest(urlInput).then(data => resolve(data)).catch(e => reject(e));
+        });
+    };
+
     //https://my.callofduty.com/api/papi-client/inventory/v1/title/cw/platform/psn/purchasable/public/en
     module.GetPurchasablePublic = function () {
         return new Promise((resolve, reject) => {
