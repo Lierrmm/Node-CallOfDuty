@@ -104,6 +104,25 @@ class helpers {
         });
     }
 
+    sendRawRequest(url) {
+        return new Promise((resolve, reject) => {
+            apiAxios.get(url).then((response) => {
+                if (debug === 1) {
+                    console.log(`[DEBUG]`, `Build URI: ${url}`);
+                    console.log(`[DEBUG]`, `Round trip took: ${response.headers['request-duration']}ms.`);
+                    console.log(`[DEBUG]`, `Response Size: ${JSON.stringify(response.data).length} bytes.`);
+                }
+
+                if (response.status !== undefined && response.status === 200) 
+                    resolve(response.data);
+                else 
+                    reject(this.apiErrorHandling({ response: response }));
+            }).catch((err) => {
+                reject(this.apiErrorHandling(err));
+            })
+        });
+    }
+
     postReq(url, data, headers = null) {
         return new Promise((resolve, reject) => {
             loginAxios.post(url, data, headers).then(response => {
@@ -948,6 +967,13 @@ module.exports = function (config = {}) {
     module.isLoggedIn = function () {
         return loggedIn;
     };
+
+    module.getLookupValues = function() {
+        return new Promise((resolve, reject) => {
+            let urlInput = "https://my.callofduty.com/content/atvi/callofduty/mycod/web/en/data/json/iq-content-xweb.js";
+            _helpers.sendRawRequest(urlInput).then((data => resolve(data))).catch((e => reject(e)))
+        });
+    }
 
     module.apiAxios = apiAxios;
 
