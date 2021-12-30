@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,11 @@
     "Cold War",
     "cw",
     "3arc",
-    "vanguard"
+    "vanguard",
+    "Treyarch",
+    "Infinity Ward",
+    "Sledgehammer",
+    "Raven"
   ],
   "author": "Liam Gaskell",
   "license": "ISC",

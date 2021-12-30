@@ -257,6 +257,7 @@ module.exports = function (config = {}) {
 
                 if (typeof auth.sso === "undefined" || typeof auth.atkn === "undefined") throw new Error("Failed to Login");
                 else {
+                    ssoCookie = auth.sso;
                     apiAxios.defaults.headers.common["cookie"] = `XSRF-TOKEN=${auth.xsrf};ACT_SSO_COOKIE=${auth.sso};atkn=${auth.atkn};`;
                     resolve("200 - successful login.");
                     loggedIn = true;
@@ -280,9 +281,8 @@ module.exports = function (config = {}) {
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
                 let fakeXSRF = "68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041";
-                ssoCookie = `ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};`;
-                console.log(ssoCookie);
-                apiAxios.defaults.headers.common["cookie"] = baseCookie + ssoCookie;
+                ssoCookie = sso;
+                apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};`;;
                 loggedIn = true;
                 resolve("200 - Logged in with SSO.");
             }).catch((err) => {
