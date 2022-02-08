@@ -17,7 +17,7 @@ let apiAxios = axios.create({
         common: {
             "content-type": "application/json",
             "cookie": baseCookie,
-            "userAgent": userAgent,
+            //"userAgent": userAgent,
             "x-requested-with": userAgent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Connection": "keep-alive"
@@ -185,6 +185,9 @@ module.exports = function (config = {}) {
     var module = {};
     if (config.platform == undefined) config.platform = "psn";
 
+    if (config.timeout !== undefined && !isNaN(config.timeout)) 
+        apiAxios.defaults.timeout = config.timeout;
+
     if (config.debug === 1) {
         debug = 1;
         apiAxios.interceptors.request.use((resp) => {
@@ -278,9 +281,12 @@ module.exports = function (config = {}) {
             }).then((response) => {
                 console.log(response);
                 let authHeader = response.data.authHeader;
+                let fakeXSRF = "68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041";
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
-                let fakeXSRF = "68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041";
+                apiAxios.defaults.headers.common["X-XSRF-TOKEN"] = fakeXSRF;
+                apiAxios.defaults.headers.common["X-CSRF-TOKEN"] = fakeXSRF;
+                apiAxios.defaults.headers.common["Acti-Auth"] = `Bearer ${sso}`;
                 ssoCookie = sso;
                 apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};`;;
                 loggedIn = true;

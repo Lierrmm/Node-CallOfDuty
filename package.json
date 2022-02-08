@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Wrapper for the Call Of Duty API.",
   "main": "index.js",
   "scripts": {
@@ -46,5 +46,6 @@
     "puppeteer-extra-plugin-recaptcha": "^3.4.0",
     "puppeteer-extra-plugin-stealth": "^2.7.8",
     "uniqid": "^5.3.0"
-  }
+  },
+  "devDependencies": {}
 }
