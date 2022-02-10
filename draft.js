@@ -18,7 +18,6 @@ let apiAxios = axios.create({
             "content-type": "application/json",
             "cookie": baseCookie,
             "Referer": "https://my.callofduty.com/home",
-            "userAgent": userAgent,
             "x-requested-with": userAgent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Connection": "keep-alive"
@@ -280,7 +279,6 @@ module.exports = function (config = {}) {
             _helpers.postReq(`${loginURL}registerDevice`, {
                 'deviceId': deviceId
             }).then((response) => {
-                console.log(response);
                 let authHeader = response.data.authHeader;
                 let fakeXSRF = "68e8b62e-1d9d-4ce1-b93f-cbe5ff31a041";
                 apiAxios.defaults.headers.common.Authorization = `bearer ${authHeader}`;
@@ -289,8 +287,9 @@ module.exports = function (config = {}) {
                 apiAxios.defaults.headers.common["X-CSRF-TOKEN"] = fakeXSRF;
                 apiAxios.defaults.headers.common["Atvi-Auth"] = `Bearer ${sso}`;
                 apiAxios.defaults.headers.common["ACT_SSO_COOKIE"] = `${sso}`;
+                apiAxios.defaults.headers.common["atkn"] = `${sso}`;
                 ssoCookie = sso;
-                apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ak_bmsc=CODAPI;`;
+                apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ACT_SSO_EVENT="LOGIN_SUCCESS:1644346543228";ACT_SSO_COOKIE_EXPIRY=1645556143194;comid=cod;ssoDevId=63025d09c69f47dfa2b8d5520b5b73e4;tfa_enrollment_seen=true;gtm.custom.bot.flag=human;`;
                 loggedIn = true;
                 resolve("200 - Logged in with SSO.");
             }).catch((err) => {
