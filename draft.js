@@ -6,7 +6,7 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const uniqid = require('uniqid');
 const crypto = require('crypto');
 
-const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36w";
+const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
 let baseCookie = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
 let ssoCookie;
 let loggedIn = false;
@@ -17,7 +17,8 @@ let apiAxios = axios.create({
         common: {
             "content-type": "application/json",
             "cookie": baseCookie,
-            //"userAgent": userAgent,
+            "Referer": "https://my.callofduty.com/home",
+            "userAgent": userAgent,
             "x-requested-with": userAgent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Connection": "keep-alive"
@@ -286,9 +287,10 @@ module.exports = function (config = {}) {
                 apiAxios.defaults.headers.common.x_cod_device_id = `${deviceId}`;
                 apiAxios.defaults.headers.common["X-XSRF-TOKEN"] = fakeXSRF;
                 apiAxios.defaults.headers.common["X-CSRF-TOKEN"] = fakeXSRF;
-                apiAxios.defaults.headers.common["Acti-Auth"] = `Bearer ${sso}`;
+                apiAxios.defaults.headers.common["Atvi-Auth"] = `Bearer ${sso}`;
+                apiAxios.defaults.headers.common["ACT_SSO_COOKIE"] = `${sso}`;
                 ssoCookie = sso;
-                apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};`;;
+                apiAxios.defaults.headers.common["cookie"] = baseCookie + `${baseCookie}ACT_SSO_COOKIE=${sso};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ak_bmsc=CODAPI;`;
                 loggedIn = true;
                 resolve("200 - Logged in with SSO.");
             }).catch((err) => {
