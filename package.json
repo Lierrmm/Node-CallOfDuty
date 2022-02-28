@@ -1,0 +1,41 @@
+{
+  "name": "call-of-duty-api",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lierrmm/Node-CallOfDuty.git"
+  },
+  "keywords": [
+    "br",
+    "warzone",
+    "call-of-duty",
+    "call of duty",
+    "modern warfare",
+    "black ops",
+    "iw",
+    "battle royale",
+    "Cold War",
+    "cw",
+    "3arc",
+    "vanguard",
+    "Treyarch",
+    "Infinity Ward",
+    "Sledgehammer",
+    "Raven"
+  ],
+  "bugs": {
+    "url": "https://github.com/Lierrmm/Node-CallOfDuty/issues"
+  },
+  "homepage": "https://codapi.dev",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Lierrmm"
+  },
+  "author": "Liam Gaskell",
+  "license": "ISC"
+}
