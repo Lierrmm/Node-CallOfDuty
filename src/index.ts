@@ -73,6 +73,19 @@ const login = (ssoToken: string): boolean => {
 };
 
 class WZ {
+    this.search = (gamertag, platform) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
+        let lookupType = "gamer";
+        if (platform === platforms.Steam)
+            throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno)
+            gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno)
+            lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision)
+            platform = platforms.Uno;
+        return yield sendRequest(`/crm/cod/v2/platform/${platform}/username/${gamertag}/search`);
+    });
+
     fullData = async (gamertag: string, platform: platforms) => {
         let lookupType = "gamer";
         if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
