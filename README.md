@@ -20,3 +20,6 @@ https://codapi.dev
 
 # Documentation
 You can find documentation [here](https://docs.codapi.dev/).
+
+# Stats
+![Alt](https://repobeats.axiom.co/api/embed/11dfd4cc8f054e2599ff859fdef15856e5b36ea2.svg "Repobeats Analytics for Node-CallOfDuty")
