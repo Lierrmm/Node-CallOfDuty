@@ -2,7 +2,7 @@ import { IncomingHttpHeaders } from "http";
 import { request } from "undici";
 
 const userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
-let baseCookie: string = "new_SiteId=cod; ACT_SSO_LOCALE=en_US;country=US;";
+let baseCookie: string = "new_SiteId=cod;ACT_SSO_LOCALE=en_US;country=US;";
 let baseSsoToken: string = '';
 
 interface CustomHeaders extends IncomingHttpHeaders {
@@ -21,6 +21,12 @@ let baseHeaders: CustomHeaders = {
     'user-agent': userAgent
 };
 
+let basePostHeaders: CustomHeaders = { 
+    'content-type': 'text/plain',
+    'cookie': baseCookie,
+    'user-agent': userAgent
+};
+
 let baseUrl: string = "https://my.callofduty.com";
 let apiPath: string = "/api/papi-client";
 let loggedIn: boolean = false;
@@ -35,12 +41,41 @@ enum platforms  {
     XBOX = 'xbl'
 };
 
+enum friendActions {
+    Invite = "invite",
+    Uninvite = "uninvite",
+    Remove = "remove",
+    Block = "block",
+    Unblock = "unblock"
+}
+
 const sendRequest = async (url: string) => {
     try {
         if (!loggedIn) throw new Error("Not Logged In.");
         let requestUrl = `${baseUrl}${apiPath}${url}`;
         const { body, statusCode } = await request(requestUrl, {
             headers: baseHeaders
+        });
+        
+        let response = await body.json();
+
+        if (statusCode > 299) return response;
+
+        return response;
+    }
+    catch (exception: unknown) {
+        throw exception;
+    }
+};
+
+const sendPostRequest = async (url: string, data: string) => {
+    try {
+        if (!loggedIn) throw new Error("Not Logged In.");
+        let requestUrl = `${baseUrl}${apiPath}${url}`;
+        const { body, statusCode } = await request(requestUrl, {
+            method: 'POST',
+            headers: basePostHeaders,
+            body: data
         });
         
         let response = await body.json();
@@ -68,6 +103,12 @@ const login = (ssoToken: string): boolean => {
     baseHeaders["atkn"] = ssoToken;
     baseHeaders["cookie"] = `${baseCookie}ACT_SSO_COOKIE=${ssoToken};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ACT_SSO_EVENT="LOGIN_SUCCESS:1644346543228";ACT_SSO_COOKIE_EXPIRY=1645556143194;comid=cod;ssoDevId=63025d09c69f47dfa2b8d5520b5b73e4;tfa_enrollment_seen=true;gtm.custom.bot.flag=human;`;
     baseSsoToken = ssoToken;
+    basePostHeaders["X-XSRF-TOKEN"] = fakeXSRF;
+    basePostHeaders["X-CSRF-TOKEN"] = fakeXSRF;
+    basePostHeaders["Atvi-Auth"] = ssoToken;
+    basePostHeaders["ACT_SSO_COOKIE"] = ssoToken;
+    basePostHeaders["atkn"] = ssoToken;
+    basePostHeaders["cookie"] = `${baseCookie}ACT_SSO_COOKIE=${ssoToken};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ACT_SSO_EVENT="LOGIN_SUCCESS:1644346543228";ACT_SSO_COOKIE_EXPIRY=1645556143194;comid=cod;ssoDevId=63025d09c69f47dfa2b8d5520b5b73e4;tfa_enrollment_seen=true;gtm.custom.bot.flag=human;`;
     loggedIn = true;
     return loggedIn;
 };
@@ -377,6 +418,14 @@ class USER {
         if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
         return await sendRequest(`/preferences/v1/platform/${platform}/gamer/${gamertag}/list`);
     };
+
+    friendAction = async (gamertag: string, platform: platforms, action: friendActions) => {
+        var type = platform == platforms.Uno ? 'id' : 'gamer';
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var url = `/codfriends/v1/${action}/${platform}/${type}/${gamertag}`;
+        return await sendPostRequest(url, "{}");
+    };
 }
 
 class ALT {
@@ -395,4 +444,4 @@ const Store = new SHOP();
 const Me = new USER();
 const Misc = new ALT();
 
-export { login, platforms, Warzone, ModernWarfare, ColdWar, Vanguard, Store, Me, Misc };
+export { login, platforms, friendActions, Warzone, ModernWarfare, ColdWar, Vanguard, Store, Me, Misc };
