@@ -1,5 +1,6 @@
 import { IncomingHttpHeaders } from "http";
 import { request } from "undici";
+import wzMappings from './wz-data/game-modes.json';
 
 const userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
 let baseCookie: string = "new_SiteId=cod;ACT_SSO_LOCALE=en_US;country=US;";
@@ -164,6 +165,14 @@ class WZ {
         if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/fullMatch/wz/${matchId}/en`);
     };
+
+    cleanGameMode = async (mode: string): Promise<string> => {
+        //@ts-ignore
+        const foundMode: string = wzMappings["modes"][mode];
+        if (!foundMode)
+            return mode;
+        return foundMode;
+    }
 }
 
 class MW {
