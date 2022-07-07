@@ -1,0 +1,3 @@
+[submodule "src/wz-data"]
+	path = src/wz-data
+	url = https://github.com/Engineer152/wz-data

@@ -3,6 +3,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
+    "resolveJsonModule": true,
     "module": "CommonJS",
     "target": "es2015",
     "esModuleInterop": true,
