@@ -1,5 +1,6 @@
 import { IncomingHttpHeaders } from "http";
 import { request } from "undici";
+import weaponMappings from './wz-data/weapon-ids.json';
 import wzMappings from './wz-data/game-modes.json';
 
 const userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
@@ -442,6 +443,14 @@ class ALT {
         if (platform === platforms.Battlenet || platform === platforms.All || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
         if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
         return await sendRequest(`/crm/cod/v2/platform/${platform}/username/${gamertag}/search`);
+    }
+
+    cleanWeapon = async (weapon: string): Promise<string> => {
+        //@ts-ignore
+        const foundWeapon: string = weaponMappings["All Weapons"][weapon];
+        if (!foundWeapon)
+            return weapon;
+        return foundWeapon;
     }
 }
 
