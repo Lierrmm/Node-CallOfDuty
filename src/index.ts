@@ -243,6 +243,66 @@ class MW {
     };
 }
 
+class MW2 {
+    fullData = async (gamertag: string, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/stats/cod/v1/title/mw2/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+    };
+
+    combatHistory = async (gamertag: string, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+    };
+
+    combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
+    };
+
+    breakdown = async (gamertag: string, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
+    };
+
+    breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
+    };
+
+    seasonloot = async (gamertag: string, platform: platforms) => {
+        let lookupType = "gamer";
+        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
+        if (platform === platforms.Uno) lookupType = "id";
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/loot/title/mw2/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+    };
+
+    mapList = async (platform: platforms) => {
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/ce/v1/title/mw2/platform/${platform}/gameType/mp/communityMapData/availability`);
+    };
+
+    matchInfo = async (matchId: string, platform: platforms) => {
+        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/fullMatch/mp/${matchId}/en`);
+    };
+}
+
 class CW {
     fullData = async (gamertag: string, platform: platforms) => {
         let lookupType = "gamer";
@@ -456,10 +516,11 @@ class ALT {
 
 const Warzone = new WZ();
 const ModernWarfare = new MW();
+const ModernWarfare2 = new MW2();
 const ColdWar = new CW();
 const Vanguard = new VG();
 const Store = new SHOP();
 const Me = new USER();
 const Misc = new ALT();
 
-export { login, platforms, friendActions, Warzone, ModernWarfare, ColdWar, Vanguard, Store, Me, Misc };
+export { login, platforms, friendActions, Warzone, ModernWarfare, ModernWarfare2, ColdWar, Vanguard, Store, Me, Misc };
