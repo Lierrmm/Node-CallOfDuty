@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "NodeJS Wrapper for the Call Of Duty API.",
   "main": "dist/index",
   "types": "dist/index",
@@ -32,7 +32,11 @@
     "Treyarch",
     "Infinity Ward",
     "Sledgehammer",
-    "Raven"
+    "Raven",
+    "Modern Warfare 2",
+    "Warzone 2",
+    "Blue Moon",
+    "Beenox"
   ],
   "bugs": {
     "url": "https://github.com/Lierrmm/Node-CallOfDuty/issues"
@@ -45,12 +49,12 @@
   "author": "Liam Gaskell",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^17.0.45",
+    "@types/node": "^18.11.4",
     "rimraf": "^3.0.2",
-    "typescript": "^4.7.3"
+    "typescript": "^4.8.4"
   },
   "dependencies": {
     "tslib": "^2.4.0",
-    "undici": "^5.5.1"
+    "undici": "^5.11.0"
   }
 }

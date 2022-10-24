@@ -6,6 +6,7 @@ import wzMappings from './wz-data/game-modes.json';
 const userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
 let baseCookie: string = "new_SiteId=cod;ACT_SSO_LOCALE=en_US;country=US;";
 let baseSsoToken: string = '';
+let debugMode = false;
 
 interface CustomHeaders extends IncomingHttpHeaders {
     "X-XSRF-TOKEN"?: string | undefined;
@@ -51,15 +52,29 @@ enum friendActions {
     Unblock = "unblock"
 }
 
+const enableDebugMode = () => debugMode = true;
+
+const disableDebugMode = () => debugMode = false;
+
 const sendRequest = async (url: string) => {
     try {
         if (!loggedIn) throw new Error("Not Logged In.");
         let requestUrl = `${baseUrl}${apiPath}${url}`;
+
+        if (debugMode) console.time("Round Trip");
+
         const { body, statusCode } = await request(requestUrl, {
             headers: baseHeaders
         });
-        
+
+        if (debugMode) console.timeEnd("Round Trip");
+
         let response = await body.json();
+
+        if (debugMode) {
+            console.log(`[DEBUG]`, `Request Uri: ${requestUrl}`);
+            console.log(`[DEBUG]`, `Body Size: ${JSON.stringify(response).length} bytes.`);
+        }
 
         if (statusCode > 299) return response;
 
@@ -523,4 +538,4 @@ const Store = new SHOP();
 const Me = new USER();
 const Misc = new ALT();
 
-export { login, platforms, friendActions, Warzone, ModernWarfare, ModernWarfare2, ColdWar, Vanguard, Store, Me, Misc };
+export { login, platforms, friendActions, Warzone, ModernWarfare, ModernWarfare2, ColdWar, Vanguard, Store, Me, Misc, enableDebugMode, disableDebugMode };
