@@ -52,6 +52,10 @@ enum friendActions {
     Unblock = "unblock"
 }
 
+enum generics {
+    STEAM_UNSUPPORTED = "Steam platform not supported by this game. Try `battle` instead."
+}
+
 const enableDebugMode = () => debugMode = true;
 
 const disableDebugMode = () => debugMode = false;
@@ -130,55 +134,54 @@ const login = (ssoToken: string): boolean => {
     return loggedIn;
 };
 
-const handleLookupType = (platform: platforms) =>{
-    if (platform === platforms.Uno) return "id";
+const handleLookupType = (platform: platforms) => {
+    return platform === platforms.Uno ? 'id' : 'gamer';
+};
 
-    return 'gamer';
-}
+const mapGamertagToPlatform = (gamertag: string, platform: platforms, steamSupport: boolean = false) => {
+    const lookupType = handleLookupType(platform);
+
+    if (!steamSupport && platform === platforms.Steam) throw new Error(generics.STEAM_UNSUPPORTED);
+
+    if (platform == platforms.Battlenet || platform == platforms.Activision || platform == platforms.Uno)
+        if (gamertag && gamertag.length > 0) gamertag = cleanClientName(gamertag);
+
+    if (platform === platforms.Uno || platform === platforms.Activision)
+            platform = platforms.Uno;
+
+    return { gamertag, _platform: platform as platforms, lookupType };
+};
+
 class WZ {
     fullData = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/wz`);
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0/details`);
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${startTime}/end/${endTime}/details`);
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0`);
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${startTime}/end/${endTime}`);
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/fullMatch/wz/${matchId}/en`);
     };
 
@@ -193,239 +196,168 @@ class WZ {
 
 class MW {
     fullData = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/loot/title/mw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
     };
 
     mapList = async (platform: platforms) => {
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/ce/v1/title/mw/platform/${platform}/gameType/mp/communityMapData/availability`);
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for MW. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/fullMatch/mp/${matchId}/en`);
     };
 }
 
 class MW2 {
     fullData = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/stats/cod/v1/title/mw2/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/loot/title/mw2/platform/${platform}/${lookupType}/${gamertag}/status/en`);
     };
 
     mapList = async (platform: platforms) => {
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/ce/v1/title/mw2/platform/${platform}/gameType/mp/communityMapData/availability`);
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
         return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/fullMatch/mp/${matchId}/en`);
     };
 }
 
 class CW {
     fullData = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/stats/cod/v1/title/cw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/loot/title/cw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
     };
 
     mapList = async (platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/ce/v1/title/cw/platform/${platform}/gameType/mp/communityMapData/availability`);
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for CW. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/fullMatch/mp/${matchId}/en`);
     };
 }
 
 class VG {
     fullData = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/stats/cod/v1/title/vg/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/loot/title/vg/platform/${platform}/${lookupType}/${gamertag}/status/en`);
     };
 
     mapList = async (platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/ce/v1/title/vg/platform/${platform}/gameType/mp/communityMapData/availability`);
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        if (platform === platforms.Steam) throw new Error("Steam Doesn't exist for VG. Try `battle` instead.");
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/fullMatch/mp/${matchId}/en`);
     };
 }
@@ -440,15 +372,14 @@ class SHOP {
     };
 
     battlePassLoot = async (season: number, platform: platforms) => {
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/loot/title/mw/platform/${platform}/list/loot_season_${season}/en`);
     };
 }
 
 class USER {
     friendFeed = async (gamertag: string, platform: platforms) => {
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/userfeed/v1/friendFeed/platform/${platform}/gamer/${gamertag}/friendFeedEvents/en`);
     };
 
@@ -461,28 +392,22 @@ class USER {
     };
 
     codPoints = async (gamertag: string, platform: platforms) => {
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/inventory/v1/title/mw/platform/${platform}/gamer/${gamertag}/currency`);
     };
 
     connectedAccounts = async (gamertag: string, platform: platforms) => {
-        const lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/accounts/platform/${platform}/${lookupType}/${gamertag}`);
     };
 
     settings = async (gamertag: string, platform: platforms) => {
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/preferences/v1/platform/${platform}/gamer/${gamertag}/list`);
     };
 
     friendAction = async (gamertag: string, platform: platforms, action: friendActions) => {
-        var lookupType = handleLookupType(platform);
-        if (platform === platforms.Battlenet || platform === platforms.Activision || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         var url = `/codfriends/v1/${action}/${platform}/${lookupType}/${gamertag}`;
         return await sendPostRequest(url, "{}");
     };
@@ -490,8 +415,7 @@ class USER {
 
 class ALT {
     search = async (gamertag: string, platform: platforms) => {
-        if (platform === platforms.Battlenet || platform === platforms.All || platform === platforms.Uno) gamertag = cleanClientName(gamertag);
-        if (platform === platforms.Uno || platform === platforms.Activision) platform = platforms.Uno;
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
         return await sendRequest(`/crm/cod/v2/platform/${platform}/username/${gamertag}/search`);
     }
 
