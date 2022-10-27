@@ -65,6 +65,7 @@ const sendRequest = async (url: string) => {
         if (!loggedIn) throw new Error("Not Logged In.");
         let requestUrl = `${baseUrl}${apiPath}${url}`;
 
+        if (debugMode) console.log(`[DEBUG]`, `Request Uri: ${requestUrl}`);
         if (debugMode) console.time("Round Trip");
 
         const { body, statusCode } = await request(requestUrl, {
@@ -75,11 +76,9 @@ const sendRequest = async (url: string) => {
 
         let response = await body.json();
 
-        if (debugMode) {
-            console.log(`[DEBUG]`, `Request Uri: ${requestUrl}`);
+        if (debugMode) 
             console.log(`[DEBUG]`, `Body Size: ${JSON.stringify(response).length} bytes.`);
-        }
-
+    
         if (statusCode > 299) return response;
 
         return response;
