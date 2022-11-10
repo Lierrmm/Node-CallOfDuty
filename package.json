@@ -1,6 +1,6 @@
 {
   "name": "call-of-duty-api",
-  "version": "3.3.3",
+  "version": "3.4.0",
   "description": "NodeJS Wrapper for the Call Of Duty API.",
   "main": "dist/index",
   "types": "dist/index",
@@ -55,6 +55,6 @@
   },
   "dependencies": {
     "tslib": "^2.4.0",
-    "undici": "^5.11.0"
+    "undici": "^5.12.0"
   }
 }

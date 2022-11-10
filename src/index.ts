@@ -53,7 +53,8 @@ enum friendActions {
 }
 
 enum generics {
-    STEAM_UNSUPPORTED = "Steam platform not supported by this game. Try `battle` instead."
+    STEAM_UNSUPPORTED = "Steam platform not supported by this game. Try `battle` instead.",
+    UNO_NO_NUMERICAL_ID = `You must use a numerical ID when using the platform 'uno'.\nIf using an Activision ID, please use the platform 'acti'.`
 }
 
 const enableDebugMode = () => debugMode = true;
@@ -73,14 +74,15 @@ const sendRequest = async (url: string) => {
         });
 
         if (debugMode) console.timeEnd("Round Trip");
+        
+        if (statusCode >= 500)
+            throw new Error(`Received status code: '${statusCode}'. Route may be down or not exist.`);
 
         let response = await body.json();
 
         if (debugMode) 
             console.log(`[DEBUG]`, `Body Size: ${JSON.stringify(response).length} bytes.`);
     
-        if (statusCode > 299) return response;
-
         return response;
     }
     catch (exception: unknown) {
@@ -98,10 +100,11 @@ const sendPostRequest = async (url: string, data: string) => {
             body: data
         });
         
+        if (statusCode >= 500)
+            throw new Error(`Received status code: '${statusCode}'. Route may be down or not exist.`);
+
         let response = await body.json();
-
-        if (statusCode > 299) return response;
-
+        
         return response;
     }
     catch (exception: unknown) {
@@ -137,7 +140,17 @@ const handleLookupType = (platform: platforms) => {
     return platform === platforms.Uno ? 'id' : 'gamer';
 };
 
+const checkForValidPlatform = (platform: platforms, gamertag?: string) => {
+    if (!Object.values(platforms).includes(platform as unknown as platforms)) 
+        throw new Error(`Platform '${platform}' is not valid.\nTry one of the following:\n${JSON.stringify(Object.values(platforms), null, 2)}`);
+
+    if (gamertag && isNaN(Number(gamertag)) && platform === platforms.Uno)
+        throw new Error(generics.UNO_NO_NUMERICAL_ID);
+};
+
 const mapGamertagToPlatform = (gamertag: string, platform: platforms, steamSupport: boolean = false) => {
+    checkForValidPlatform(platform, gamertag);
+
     const lookupType = handleLookupType(platform);
 
     if (!steamSupport && platform === platforms.Steam) throw new Error(generics.STEAM_UNSUPPORTED);
