@@ -41,7 +41,22 @@ enum platforms  {
     PSN = 'psn',
     Steam = 'steam',
     Uno = 'uno',
-    XBOX = 'xbl'
+    XBOX = 'xbl',
+    NULL = '_'
+};
+
+enum games {
+    ModernWarfare = 'mw',
+    ModernWarfare2 = 'mw2',
+    Vanguard = 'vg',
+    ColdWar = 'cw',
+    NULL = '_'
+};
+
+enum modes {
+    Multiplayer = 'mp',
+    Warzone = 'wz',
+    NULL = '_'
 };
 
 enum friendActions {
@@ -50,12 +65,12 @@ enum friendActions {
     Remove = "remove",
     Block = "block",
     Unblock = "unblock"
-}
+};
 
 enum generics {
     STEAM_UNSUPPORTED = "Steam platform not supported by this game. Try `battle` instead.",
     UNO_NO_NUMERICAL_ID = `You must use a numerical ID when using the platform 'uno'.\nIf using an Activision ID, please use the platform 'acti'.`
-}
+};
 
 const enableDebugMode = () => debugMode = true;
 
@@ -164,37 +179,78 @@ const mapGamertagToPlatform = (gamertag: string, platform: platforms, steamSuppo
     return { gamertag, _platform: platform as platforms, lookupType };
 };
 
+class Endpoints {
+    
+    game: games | undefined;
+    gamertag: string| undefined;
+    platform: platforms| undefined;
+    lookupType: string | undefined;
+    mode: string | undefined;
+
+    constructor(game?: games, gamertag?: string, platform?: platforms, mode?: string, lookupType?: string) {
+        this.game = game;
+        this.gamertag = gamertag;
+        this.platform = platform;
+        this.lookupType = lookupType;
+        this.mode = mode;
+    }
+
+    fullData = () => `/stats/cod/v1/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/profile/type/${this.mode}`;
+    combatHistory = () => `/crm/cod/v2/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/matches/${this.mode}/start/0/end/0/details`;
+    combatHistoryWithDate = (startTime: number, endTime: number) => `/crm/cod/v2/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/matches/${this.mode}/start/${startTime}/end/${endTime}/details`;
+    breakdown = () => `/crm/cod/v2/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/matches/${this.mode}/start/0/end/0`;
+    breakdownWithDate = (startTime: number, endTime: number) => `/crm/cod/v2/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/matches/${this.mode}/start/${startTime}/end/${endTime}`;
+    matchInfo = (matchId: string) => `/crm/cod/v2/title/${this.game}/platform/${this.platform}/fullMatch/wz/${matchId}/en`;
+    seasonLoot = () => `/loot/title/${this.game}/platform/${this.platform}/${this.lookupType}/${this.gamertag}/status/en`;
+    mapList = () => `/ce/v1/title/${this.game}/platform/${this.platform}/gameType/${this.mode}/communityMapData/availability`;
+    purchasableItems = (gameId: string) => `/inventory/v1/title/${gameId}/platform/psn/purchasable/public/en`;
+    bundleInformation = (gameId: string, bundleId: string) => `/inventory/v1/title/${gameId}/bundle/${bundleId}/en`; 
+    battlePassLoot = (season: number) => `/loot/title/${this.game}/platform/${this.platform}/list/loot_season_${season}/en`;
+    friendFeed = () => `/userfeed/v1/friendFeed/platform/${this.platform}/${this.lookupType}/${this.gamertag}/friendFeedEvents/en`;
+    eventFeed = () => `/userfeed/v1/friendFeed/rendered/en/${baseSsoToken}`;
+    loggedInIdentities = () => `/crm/cod/v2/identities/${baseSsoToken}`;
+    codPoints = () => `/inventory/v1/title/mw/platform/${this.platform}/${this.lookupType}/${this.gamertag}/currency`;
+    connectedAccounts = () => `/crm/cod/v2/accounts/platform/${this.platform}/${this.lookupType}/${this.gamertag}`;
+    settings = () => `/preferences/v1/platform/${this.platform}/${this.lookupType}/${this.gamertag}/list`;
+    friendAction = (action: friendActions) => `/codfriends/v1/${action}/${this.platform}/${this.lookupType}/${this.gamertag}`;
+    search = () => `/crm/cod/v2/platform/${this.platform}/username/${this.gamertag}/search`;
+}
+
 class WZ {
     fullData = async (gamertag: string, platform: platforms) => {
-
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/wz`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.fullData());
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0/details`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.combatHistory());
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${startTime}/end/${endTime}/details`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/0/end/0`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.breakdown());
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/wz/start/${startTime}/end/${endTime}`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/fullMatch/wz/${matchId}/en`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Warzone, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
     };
 
     cleanGameMode = async (mode: string): Promise<string> => {
@@ -209,226 +265,269 @@ class WZ {
 class MW {
     fullData = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/stats/cod/v1/title/mw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.fullData());
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistory());
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdown());
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
+    };
+
+    matchInfo = async (matchId: string, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/loot/title/mw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.seasonLoot());
     };
 
     mapList = async (platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/ce/v1/title/mw/platform/${platform}/gameType/mp/communityMapData/availability`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.ModernWarfare, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.mapList());
     };
 
-    matchInfo = async (matchId: string, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/mw/platform/${platform}/fullMatch/mp/${matchId}/en`);
-    };
 }
 
 class MW2 {
     fullData = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/stats/cod/v1/title/mw2/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.fullData());
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistory());
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdown());
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/loot/title/mw2/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.seasonLoot());
     };
 
     mapList = async (platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/ce/v1/title/mw2/platform/${platform}/gameType/mp/communityMapData/availability`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform, true);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.mapList());
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
-        return await sendRequest(`/crm/cod/v2/title/mw2/platform/${platform}/fullMatch/mp/${matchId}/en`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform, true);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
     };
 }
 
 class CW {
     fullData = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/stats/cod/v1/title/cw/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.fullData());
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistory());
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdown());
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/loot/title/cw/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.seasonLoot());
     };
 
     mapList = async (platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/ce/v1/title/cw/platform/${platform}/gameType/mp/communityMapData/availability`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.mapList());
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/cw/platform/${platform}/fullMatch/mp/${matchId}/en`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.ColdWar, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
     };
 }
 
 class VG {
     fullData = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/stats/cod/v1/title/vg/platform/${platform}/${lookupType}/${gamertag}/profile/type/mp`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.fullData());
     };
 
     combatHistory = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0/details`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistory());
     };
 
     combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}/details`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
     };
 
     breakdown = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/0/end/0`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdown());
     };
 
     breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/${lookupType}/${gamertag}/matches/mp/start/${startTime}/end/${endTime}`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
     };
 
     seasonloot = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/loot/title/vg/platform/${platform}/${lookupType}/${gamertag}/status/en`);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.seasonLoot());
     };
 
     mapList = async (platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/ce/v1/title/vg/platform/${platform}/gameType/mp/communityMapData/availability`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.mapList());
     };
 
     matchInfo = async (matchId: string, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/title/vg/platform/${platform}/fullMatch/mp/${matchId}/en`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.Vanguard, gamertag, platform, modes.Multiplayer, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
     };
 }
 
 class SHOP {
     purchasableItems = async (gameId: string) => {
-        return await sendRequest(`/inventory/v1/title/${gameId}/platform/psn/purchasable/public/en`);
+        const endpoint = new Endpoints(games.NULL, "", platforms.NULL, modes.NULL, "");
+        return await sendRequest(endpoint.purchasableItems(gameId));
     };
 
     bundleInformation = async(title: string, bundleId: string) => {
-        return await sendRequest(`/inventory/v1/title/${title}/bundle/${bundleId}/en`);
+        const endpoint = new Endpoints(games.NULL, "", platforms.NULL, modes.NULL, "");
+        return await sendRequest(endpoint.bundleInformation(title, bundleId));
     };
 
-    battlePassLoot = async (season: number, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/loot/title/mw/platform/${platform}/list/loot_season_${season}/en`);
+    battlePassLoot = async (title: games, season: number, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(title, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.battlePassLoot(season));
     };
 }
 
 class USER {
     friendFeed = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/userfeed/v1/friendFeed/platform/${platform}/gamer/${gamertag}/friendFeedEvents/en`);
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.friendFeed());
     };
 
     eventFeed = async() => {
-        return await sendRequest(`/userfeed/v1/friendFeed/rendered/en/${baseSsoToken}`);
+        const endpoint = new Endpoints(games.NULL, "", platforms.NULL, modes.NULL, "");
+        return await sendRequest(endpoint.eventFeed());
     };
 
     loggedInIdentities = async () => {
-        return await sendRequest(`/crm/cod/v2/identities/${baseSsoToken}`);
+        const endpoint = new Endpoints(games.NULL, "", platforms.NULL, modes.NULL, "");
+        return await sendRequest(endpoint.loggedInIdentities());
     };
 
     codPoints = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/inventory/v1/title/mw/platform/${platform}/gamer/${gamertag}/currency`);
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.codPoints());
     };
 
     connectedAccounts = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/accounts/platform/${platform}/${lookupType}/${gamertag}`);
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.connectedAccounts());
     };
 
     settings = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/preferences/v1/platform/${platform}/gamer/${gamertag}/list`);
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.settings());
     };
 
     friendAction = async (gamertag: string, platform: platforms, action: friendActions) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        var url = `/codfriends/v1/${action}/${platform}/${lookupType}/${gamertag}`;
-        return await sendPostRequest(url, "{}");
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendPostRequest(endpoint.friendAction(action), "{}");
     };
 }
 
 class ALT {
     search = async (gamertag: string, platform: platforms) => {
-        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
-        return await sendRequest(`/crm/cod/v2/platform/${platform}/username/${gamertag}/search`);
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform, true);
+        const endpoint = new Endpoints(games.NULL, gamertag, platform, modes.NULL, lookupType);
+        return await sendRequest(endpoint.search());
     }
 
     cleanWeapon = async (weapon: string): Promise<string> => {
