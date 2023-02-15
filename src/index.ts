@@ -56,6 +56,7 @@ enum games {
 enum modes {
     Multiplayer = 'mp',
     Warzone = 'wz',
+    Warzone2 = 'wz2',
     NULL = '_'
 };
 
@@ -363,6 +364,44 @@ class MW2 {
     };
 }
 
+class WZ2 {
+    fullData = async (gamertag: string, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.fullData());
+    };
+
+    combatHistory = async (gamertag: string, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.combatHistory());
+    };
+
+    combatHistoryWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.combatHistoryWithDate(startTime, endTime));
+    };
+
+    breakdown = async (gamertag: string, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.breakdown());
+    };
+
+    breakdownWithDate = async (gamertag: string, startTime: number, endTime: number, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.breakdownWithDate(startTime, endTime));
+    };
+
+    matchInfo = async (matchId: string, platform: platforms) => {
+        var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform("", platform);
+        const endpoint = new Endpoints(games.ModernWarfare2, gamertag, platform, modes.Warzone2, lookupType);
+        return await sendRequest(endpoint.matchInfo(matchId));
+    };
+}
+
 class CW {
     fullData = async (gamertag: string, platform: platforms) => {
         var { gamertag , _platform: platform, lookupType } = mapGamertagToPlatform(gamertag, platform);
@@ -542,10 +581,11 @@ class ALT {
 const Warzone = new WZ();
 const ModernWarfare = new MW();
 const ModernWarfare2 = new MW2();
+const Warzone2 = new WZ2();
 const ColdWar = new CW();
 const Vanguard = new VG();
 const Store = new SHOP();
 const Me = new USER();
 const Misc = new ALT();
 
-export { login, platforms, friendActions, Warzone, ModernWarfare, ModernWarfare2, ColdWar, Vanguard, Store, Me, Misc, enableDebugMode, disableDebugMode };
+export { login, platforms, friendActions, Warzone, ModernWarfare, ModernWarfare2, Warzone2, ColdWar, Vanguard, Store, Me, Misc, enableDebugMode, disableDebugMode };
