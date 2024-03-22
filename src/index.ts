@@ -28,7 +28,6 @@ let baseHeaders: CustomHeaders = {
 let baseTelescopeHeaders: CustomHeaders = {
   accept: "application/json, text/plain, */*",
   "accept-language": "en-GB,en;q=0.9,en-US;q=0.8,fr;q=0.7,nl;q=0.6,et;q=0.5",
-  authorization: "Bearer <CODAPI>",
   "cache-control": "no-cache",
   pragma: "no-cache",
   "sec-ch-ua":
@@ -48,7 +47,7 @@ let basePostHeaders: CustomHeaders = {
 
 let baseUrl: string = "https://my.callofduty.com";
 let apiPath: string = "/api/papi-client";
-let baseTelescopeUrl: string = "https://telescope-cert.callofduty.com";
+let baseTelescopeUrl: string = "https://telescope.callofduty.com";
 let apiTelescopePath: string = "/api/ts-api";
 let loggedIn: boolean = false;
 
@@ -60,6 +59,7 @@ enum platforms {
   Steam = "steam",
   Uno = "uno",
   XBOX = "xbl",
+  ios = "ios",
   NULL = "_",
 }
 
@@ -75,6 +75,7 @@ enum telescopeGames {
   ModernWarfare2 = "mw2",
   Warzone2 = "wz2",
   ModernWarfare3 = "jup",
+  Mobile = "mgl",
 }
 
 enum modes {
@@ -102,14 +103,36 @@ enum generics {
   UNO_NO_NUMERICAL_ID = `You must use a numerical ID when using the platform 'uno'.\nIf using an Activision ID, please use the platform 'acti'.`,
 }
 
+interface telescopeLoginUmbrellaResponse {
+  accessToken: string;
+  unoUsername: string;
+  accessExpiresIn: number;
+}
+interface telescopeLoginResponse {
+  umbrella: telescopeLoginUmbrellaResponse;
+}
+
+interface telescopeLoginErrorNestedResponse {
+  name: string;
+  msg: string;
+  lsCode: string;
+}
+interface telescopeLoginErrorResponse {
+  error: telescopeLoginErrorNestedResponse;
+}
+
+let telescopeUnoToken = "";
+
 const enableDebugMode = () => (debugMode = true);
 
 const disableDebugMode = () => (debugMode = false);
 
 const sendTelescopeRequest = async (url: string) => {
   try {
+    if (!loggedIn) throw new Error("Not Logged In!");
     let requestUrl = `${baseTelescopeUrl}${apiTelescopePath}${url}`;
-
+    if (debugMode) console.log(`[DEBUG]`, `Request Uri: ${requestUrl}`);
+    baseTelescopeHeaders.authorization = `Bearer ${telescopeUnoToken}`;
     const { body, statusCode } = await request(requestUrl, {
       headers: baseTelescopeHeaders,
     });
@@ -208,6 +231,41 @@ const login = (ssoToken: string): boolean => {
     "cookie"
   ] = `${baseCookie}ACT_SSO_COOKIE=${ssoToken};XSRF-TOKEN=${fakeXSRF};API_CSRF_TOKEN=${fakeXSRF};ACT_SSO_EVENT="LOGIN_SUCCESS:1644346543228";ACT_SSO_COOKIE_EXPIRY=1645556143194;comid=cod;ssoDevId=63025d09c69f47dfa2b8d5520b5b73e4;tfa_enrollment_seen=true;gtm.custom.bot.flag=human;`;
   loggedIn = true;
+  return loggedIn;
+};
+
+const telescope_login_endpoint =
+  "https://wzm-ios-loginservice.prod.demonware.net/v1/login/uno/?titleID=7100&client=shg-cod-jup-bnet";
+const telescopeLogin = async (
+  username: string,
+  password: string
+): Promise<boolean> => {
+  if (!username || !password) return false;
+  const { body, statusCode } = await request(telescope_login_endpoint, {
+    method: "POST",
+    headers: baseHeaders,
+    body: JSON.stringify({
+      platform: "ios",
+      hardwareType: "ios",
+      auth: {
+        email: username,
+        password: password,
+      },
+      version: 1492,
+    }),
+  });
+
+  if (statusCode === 200) {
+    let response: telescopeLoginResponse =
+      (await body.json()) as telescopeLoginResponse;
+    let unoToken = response.umbrella.accessToken;
+    telescopeUnoToken = unoToken;
+  } else if (statusCode === 403) {
+    let errorResponse: telescopeLoginErrorResponse =
+      (await body.json()) as telescopeLoginErrorResponse;
+    console.error("Error Logging In:", errorResponse.error.msg);
+  }
+  loggedIn = statusCode == 200;
   return loggedIn;
 };
 
@@ -323,7 +381,6 @@ class TelescopeEndpoints {
     this.unoId = unoId;
     this.mode = mode;
   }
-
   lifeTime = () =>
     `/cr/v1/title/${this.game}/lifetime?language=english&unoId=${this.unoId}`;
   matches = () =>
@@ -697,6 +754,44 @@ class MW3 {
 
     const endpoint = new TelescopeEndpoints(
       telescopeGames.ModernWarfare3,
+      gamertag,
+      telescopeModes.Multiplayer
+    );
+
+    return await sendTelescopeRequest(endpoint.match(matchId));
+  };
+}
+
+class WZM {
+  fullData = async (unoId: string) => {
+    var { gamertag } = mapGamertagToPlatform(unoId, platforms.Uno, true);
+
+    const endpoint = new TelescopeEndpoints(
+      telescopeGames.Mobile,
+      gamertag,
+      telescopeModes.Multiplayer
+    );
+
+    return await sendTelescopeRequest(endpoint.lifeTime());
+  };
+
+  matches = async (unoId: string) => {
+    var { gamertag } = mapGamertagToPlatform(unoId, platforms.Uno, true);
+
+    const endpoint = new TelescopeEndpoints(
+      telescopeGames.Mobile,
+      gamertag,
+      telescopeModes.Multiplayer
+    );
+
+    return await sendTelescopeRequest(endpoint.matches());
+  };
+
+  matchInfo = async (unoId: string, matchId: string) => {
+    var { gamertag } = mapGamertagToPlatform(unoId, platforms.Uno, true);
+
+    const endpoint = new TelescopeEndpoints(
+      telescopeGames.Mobile,
       gamertag,
       telescopeModes.Multiplayer
     );
@@ -1171,6 +1266,7 @@ const ModernWarfare = new MW();
 const ModernWarfare2 = new MW2();
 const Warzone2 = new WZ2();
 const ModernWarfare3 = new MW3();
+const WarzoneMobile = new WZM();
 const ColdWar = new CW();
 const Vanguard = new VG();
 const Store = new SHOP();
@@ -1179,12 +1275,14 @@ const Misc = new ALT();
 
 export {
   login,
+  telescopeLogin,
   platforms,
   friendActions,
   Warzone,
   ModernWarfare,
   ModernWarfare2,
   ModernWarfare3,
+  WarzoneMobile,
   Warzone2,
   ColdWar,
   Vanguard,
