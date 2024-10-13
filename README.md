@@ -1,3 +1,7 @@
+# Deprecated
+
+As of 13th October 2024 this package is no longer maintained. It's been fun. 🎈
+
 [![npm version](https://badge.fury.io/js/call-of-duty-api.svg)](https://www.npmjs.com/package/call-of-duty-api)
 [![https://www.github.com/sponsors/lierrmm](https://img.shields.io/badge/github-donate-teal.svg)](https://www.github.com/sponsors/lierrmm)
 [![https://www.paypal.me/liammm](https://img.shields.io/badge/paypal-donate-blue.svg)](https://www.paypal.me/liammm)
